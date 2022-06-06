@@ -8,8 +8,28 @@
 import SwiftUI
 
 struct ListView: View {
+    
+    @State var expenses = []
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            HStack {
+             Image(systemName: "magnifyingglass")
+                Spacer()
+               Image(systemName: "plus.circle.fill")
+            }
+            .font(.system(size: 30, weight: .medium))
+            .padding()
+            if expenses.isEmpty {
+                Spacer()
+                Image("Drag")
+                Spacer()
+                Spacer()
+
+            } else {
+                Spacer()
+            }
+        }
     }
 }
 

@@ -14,6 +14,7 @@
 		375CFAFD284E050A00B80FA9 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375CFAFC284E050A00B80FA9 /* ListView.swift */; };
 		375CFAFF284E052600B80FA9 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375CFAFE284E052600B80FA9 /* InsightsView.swift */; };
 		375CFB01284E053100B80FA9 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375CFB00284E053100B80FA9 /* SettingsView.swift */; };
+		375CFB04284E211800B80FA9 /* Expenses.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 375CFB02284E211800B80FA9 /* Expenses.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		375CFAFC284E050A00B80FA9 /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		375CFAFE284E052600B80FA9 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		375CFB00284E053100B80FA9 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		375CFB03284E211800B80FA9 /* Expenses.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Expenses.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 		375CFAF9284E045E00B80FA9 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				375CFB02284E211800B80FA9 /* Expenses.xcdatamodeld */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -190,6 +193,7 @@
 				375CFAEC284DF05C00B80FA9 /* MainView.swift in Sources */,
 				375CFAFF284E052600B80FA9 /* InsightsView.swift in Sources */,
 				375CFAEA284DF05C00B80FA9 /* ExpensesTrackerApp.swift in Sources */,
+				375CFB04284E211800B80FA9 /* Expenses.xcdatamodeld in Sources */,
 				375CFAFD284E050A00B80FA9 /* ListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -391,6 +395,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		375CFB02284E211800B80FA9 /* Expenses.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				375CFB03284E211800B80FA9 /* Expenses.xcdatamodel */,
+			);
+			currentVersion = 375CFB03284E211800B80FA9 /* Expenses.xcdatamodel */;
+			path = Expenses.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 375CFADE284DF05C00B80FA9 /* Project object */;
 }
