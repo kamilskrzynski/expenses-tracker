@@ -7,6 +7,7 @@
 
 import Foundation
 
-struct Category {
-    var name: String
+struct Category: Codable, Hashable {
+    let emoji: String
+    let name: String
 }
