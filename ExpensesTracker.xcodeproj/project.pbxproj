@@ -19,6 +19,8 @@
 		377621E5284F529A005180CB /* Color+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621E4284F529A005180CB /* Color+Extensions.swift */; };
 		377621E8284F5992005180CB /* KeyboardNumbers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621E7284F5992005180CB /* KeyboardNumbers.swift */; };
 		377621EA284F5A7A005180CB /* Button+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621E9284F5A7A005180CB /* Button+Extensions.swift */; };
+		377621EC284F71D6005180CB /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621EB284F71D6005180CB /* Category.swift */; };
+		377621EE284F71EA005180CB /* Categories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621ED284F71EA005180CB /* Categories.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +37,8 @@
 		377621E4284F529A005180CB /* Color+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
 		377621E7284F5992005180CB /* KeyboardNumbers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNumbers.swift; sourceTree = "<group>"; };
 		377621E9284F5A7A005180CB /* Button+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Button+Extensions.swift"; sourceTree = "<group>"; };
+		377621EB284F71D6005180CB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		377621ED284F71EA005180CB /* Categories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Categories.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +131,8 @@
 		375CFAFB284E046600B80FA9 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				377621EB284F71D6005180CB /* Category.swift */,
+				377621ED284F71EA005180CB /* Categories.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -214,11 +220,13 @@
 				375CFAEC284DF05C00B80FA9 /* MainView.swift in Sources */,
 				375CFAFF284E052600B80FA9 /* InsightsView.swift in Sources */,
 				377621E5284F529A005180CB /* Color+Extensions.swift in Sources */,
+				377621EE284F71EA005180CB /* Categories.swift in Sources */,
 				375CFAEA284DF05C00B80FA9 /* ExpensesTrackerApp.swift in Sources */,
 				377621E3284F3FEC005180CB /* AddExpenseView.swift in Sources */,
 				375CFB04284E211800B80FA9 /* Expenses.xcdatamodeld in Sources */,
 				377621E8284F5992005180CB /* KeyboardNumbers.swift in Sources */,
 				375CFAFD284E050A00B80FA9 /* ListView.swift in Sources */,
+				377621EC284F71D6005180CB /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

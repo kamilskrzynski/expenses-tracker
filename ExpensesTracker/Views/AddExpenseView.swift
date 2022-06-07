@@ -168,8 +168,9 @@ struct AddExpenseView: View {
             number = number + button.rawValue
         case .backspace:
             number.removeLast()
-        default:
-            break
+            if number.isEmpty {
+                number = "0"
+            }
         }
     }
 }
