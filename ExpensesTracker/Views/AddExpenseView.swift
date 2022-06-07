@@ -28,9 +28,14 @@ struct AddExpenseView: View {
     @AppStorage("firstTime") var firstTime: Bool = false
     @State private var accountTypeButtonClicked: Bool = false
     @State private var expenseTypeButtonClicked: Bool = false
+    @State private var datePickerClicked: Bool = false
     @State var selectedAccount: Category = Category(emoji: "💳", name: "Credit Card")
     @State var selectedExpense: Category = Category(emoji: "☕️", name: "Coffee")
     @StateObject private var vm = CategoriesViewModel()
+    @State var selectedDate: Date = Date()
+    @State var createNewIncome: Bool = false
+    @State var createNewExpense: Bool = false
+    @State var createNewAccount: Bool = false
     
     var columns = [
         GridItem(.flexible()),
@@ -38,6 +43,20 @@ struct AddExpenseView: View {
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
+    
+    var selectedDateString: String {
+        if Calendar.current.isDateInToday(selectedDate) {
+            return "Today"
+        } else if Calendar.current.isDateInYesterday(selectedDate) {
+            return "Yesterday"
+        } else {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "EEEE, MMM d" // OR "dd-MM-yyyy"
+
+            let currentDateString: String = dateFormatter.string(from: selectedDate)
+            return currentDateString
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -67,9 +86,11 @@ struct AddExpenseView: View {
                     Spacer()
                     HStack {
                         Button {
-                            
+                            withAnimation {
+                                datePickerClicked = true
+                            }
                         } label: {
-                            Text("Today")
+                            Text(selectedDateString)
                                 .foregroundColor(.secondary)
                                 .font(.system(size: 15, weight: .medium))
                         }
@@ -90,7 +111,7 @@ struct AddExpenseView: View {
                                 self.accountTypeButtonClicked = true
                             }
                         } label: {
-                            Text(selectedAccount.emoji + selectedAccount.name)
+                            Text(selectedAccount.emoji + " " + selectedAccount.name)
                                 .foregroundColor(.primary)
                                 .font(.system(size: 16, weight: .medium))
                         }
@@ -104,7 +125,7 @@ struct AddExpenseView: View {
                                 self.expenseTypeButtonClicked = true
                             }
                         } label: {
-                            Text(selectedExpense.emoji + selectedExpense.name)
+                            Text(selectedExpense.emoji + " " + selectedExpense.name)
                                 .foregroundColor(.primary)
                                 .font(.system(size: 16, weight: .medium))
                         }
@@ -126,6 +147,11 @@ struct AddExpenseView: View {
                         .frame(height: 30)
                     keyboard
                 }
+                .onTapGesture {
+                    withAnimation {
+                        self.datePickerClicked = false
+                    }
+                }
                 .navigationTitle("Expense")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -138,6 +164,13 @@ struct AddExpenseView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                }
+                if datePickerClicked {
+                    VStack {
+                        Spacer()
+                        datePicker
+                    }
+                    .background(self.datePickerClicked ? Color.black.opacity(0.3) : Color.clear)
                 }
                 
                 if accountTypeButtonClicked {
@@ -157,7 +190,6 @@ struct AddExpenseView: View {
                     VStack {
                         Spacer()
                         expenses
-                        
                             .offset(y: self.expenseTypeButtonClicked ? 0 : UIScreen.main.bounds.height)
                         
                     }
@@ -171,6 +203,7 @@ struct AddExpenseView: View {
             }
         }
         .onAppear {
+            print(selectedDateString)
             if !firstTime {
                 vm.saveInitialAccounts()
                 vm.saveInitialIncomes()
@@ -179,6 +212,23 @@ struct AddExpenseView: View {
                 print(UserDefaults.standard.bool(forKey: "firstTime"))
             }
         }
+    }
+    
+    var datePicker: some View {
+        VStack {
+            DatePicker("", selection: $selectedDate, in: ...Date(), displayedComponents: .date)
+                .labelsHidden()
+                .datePickerStyle(.graphical)
+                .accentColor(.gray)
+                .offset(y: self.datePickerClicked ? 0 : UIScreen.main.bounds.height)
+        }
+        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
+        .frame(height: UIScreen.main.bounds.height / 2.6)
+        .padding(.top, 10)
+        .background(Color.customSheetBackground)
+        .cornerRadius(25)
+        .padding(.horizontal, 5)
     }
     
     var expenses: some View {
@@ -206,6 +256,7 @@ struct AddExpenseView: View {
                             .foregroundColor(.secondary)
                         }
                     }
+                    SheetAddButton(action: createNewIncome = true)
                 }
                 Text("INCOMES")
                     .foregroundColor(.secondary)
@@ -227,6 +278,8 @@ struct AddExpenseView: View {
                             .foregroundColor(.secondary)
                         }
                     }
+                    
+                    SheetAddButton(action: createNewExpense = true)
                 }
                 Text("ACCOUNTS")
                     .foregroundColor(.secondary)
@@ -235,7 +288,7 @@ struct AddExpenseView: View {
                     ForEach(vm.getAccounts(), id: \.self) { account in
                         Button {
                             selectedAccount = account
-                            accountTypeButtonClicked = false
+                            expenseTypeButtonClicked = false
                         } label: {
                             VStack {
                                 Text(account.emoji)
@@ -248,6 +301,7 @@ struct AddExpenseView: View {
                             .foregroundColor(.secondary)
                         }
                     }
+                    SheetAddButton(action: createNewAccount = true)
                 }
                 
                 Spacer()
@@ -255,12 +309,12 @@ struct AddExpenseView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 590)
-        .background(Color.white)
+        .frame(height: UIScreen.main.bounds.height / 2)
+        .background(Color.customSheetBackground)
         .cornerRadius(25)
         .padding(.top, 10)
         .padding(.bottom, 10)
-        .padding(.horizontal)
+        .padding(.horizontal, 5)
     }
     
     var accounts: some View {
@@ -278,21 +332,23 @@ struct AddExpenseView: View {
                             Text(account.emoji)
                                 .font(.system(size: 30))
                             Text(account.name)
+                                .lineLimit(1)
                                 .font(.system(size: 15, weight: .medium))
                         }
                         .frame(width: 80, height: 80)
                         .foregroundColor(.secondary)
                     }
                 }
+                SheetAddButton(action: createNewAccount = true)
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 130)
-        .background(Color.white)
+        .frame(height: 150)
+        .background(Color.customSheetBackground)
         .cornerRadius(25)
-        .padding(.top, 10)
-        .padding(.bottom, 10)
-        .padding(.horizontal)
+        .padding(.top, 20)
+        .padding(.bottom, 20)
+        .padding(.horizontal, 5)
     }
     
     var keyboard: some View {

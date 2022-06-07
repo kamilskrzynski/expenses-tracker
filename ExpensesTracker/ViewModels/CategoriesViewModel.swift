@@ -11,6 +11,7 @@ class CategoriesViewModel: ObservableObject {
     
     @Published var emoji: String = ""
     @Published var name: String = ""
+    @Published var selectedDate = Date()
     
     func saveInitialExpenses() {
         var expensesArray = [Category]()
@@ -46,6 +47,33 @@ class CategoriesViewModel: ObservableObject {
         let expenses = UserDefaults.standard.data(forKey: "expensesCategories")
         let expensesArray = try! JSONDecoder().decode([Category].self, from: expenses!)
         return expensesArray
+    }
+    
+    func addIncome() {
+        var newIncomesArray = getIncomes()
+        let newIncome = Category(emoji: emoji, name: name)
+        newIncomesArray.append(newIncome)
+        
+        let newIncomes = try! JSONEncoder().encode(newIncomesArray)
+        UserDefaults.standard.set(newIncomes, forKey: "incomesCategories")
+    }
+    
+    func addExpense() {
+        var newExpensesArray = getExpenses()
+        let newExpense = Category(emoji: emoji, name: name)
+        newExpensesArray.append(newExpense)
+        
+        let newExpenses = try! JSONEncoder().encode(newExpensesArray)
+        UserDefaults.standard.set(newExpenses, forKey: "expensesCategories")
+    }
+    
+    func addAccount() {
+        var newAccountsArray = getAccounts()
+        let newAccount = Category(emoji: emoji, name: name)
+        newAccountsArray.append(newAccount)
+        
+        let newAccounts = try! JSONEncoder().encode(newAccountsArray)
+        UserDefaults.standard.set(newAccounts, forKey: "accountsCategories")
     }
     
     func saveInitialIncomes() {

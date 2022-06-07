@@ -10,4 +10,5 @@ import SwiftUI
 extension Color {
     
     static let invertedPrimary = Color("invertedPrimary")
+    static let customSheetBackground = Color("customSheetBackground")
 }
