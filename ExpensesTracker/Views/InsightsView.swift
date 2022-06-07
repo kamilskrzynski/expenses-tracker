@@ -12,8 +12,14 @@ struct InsightsView: View {
     @State private var expenses = []
     var body: some View {
         VStack {
+
             if expenses.isEmpty {
+                Spacer()
                 Image("InsightsData")
+                Spacer()
+
+            } else {
+                Spacer()
             }
         }
     }
