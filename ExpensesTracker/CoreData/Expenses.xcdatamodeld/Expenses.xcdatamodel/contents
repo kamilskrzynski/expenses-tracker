@@ -3,10 +3,12 @@
     <entity name="Entry" representedClassName="Entry" syncable="YES" codeGenerationType="class">
         <attribute name="account" optional="YES" attributeType="String"/>
         <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="dateCreated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="type" optional="YES" attributeType="String"/>
+        <attribute name="typeEmoji" optional="YES" attributeType="String"/>
+        <attribute name="typeName" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Entry" positionX="-54" positionY="-9" width="128" height="89"/>
+        <element name="Entry" positionX="-54" positionY="-9" width="128" height="119"/>
     </elements>
 </model>

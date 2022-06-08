@@ -12,6 +12,42 @@ class CategoriesViewModel: ObservableObject {
     @Published var emoji: String = ""
     @Published var name: String = ""
     @Published var selectedDate = Date()
+    @Published var amount: String = "0"
+    @Published var account: String = ""
+    @Published var accountTypeButtonClicked: Bool = false
+    @Published var expenseTypeButtonClicked: Bool = false
+    @Published var datePickerClicked: Bool = false
+    @Published var selectedAccount: Category = Category(emoji: "💳", name: "Credit Card")
+    @Published var selectedExpense: Category = Category(emoji: "☕️", name: "Coffee")
+    @Published var selectedType: String = "expense"
+    
+    var selectedDateString: String {
+        if Calendar.current.isDateInToday(selectedDate) {
+            return "Today"
+        } else if Calendar.current.isDateInYesterday(selectedDate) {
+            return "Yesterday"
+        } else {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "EEEE, MMM d" // OR "dd-MM-yyyy"
+            
+            let currentDateString: String = dateFormatter.string(from: selectedDate)
+            return currentDateString
+        }
+    }
+    
+    func createExpense() {
+        let manager = CoreDataManager.shared
+        let entry = Entry(context: manager.persistentContainer.viewContext)
+        
+        entry.type = selectedType
+        entry.typeName = selectedExpense.name
+        entry.typeEmoji = selectedExpense.emoji
+        entry.account = selectedAccount.name
+        entry.amount = Double(amount) ?? 0.0
+        entry.dateCreated = selectedDate
+        
+        manager.save()
+    }
     
     func saveInitialExpenses() {
         var expensesArray = [Category]()
@@ -110,5 +146,24 @@ class CategoriesViewModel: ObservableObject {
         let accounts = UserDefaults.standard.data(forKey: "accountsCategories")
         let accountsArray = try! JSONDecoder().decode([Category].self, from: accounts!)
         return accountsArray
+    }
+    
+    // MARK: Tapping buttons
+    func buttonTapped(button: KeyboardNumber) {
+        switch button {
+        case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
+            if amount == "0" {
+                amount = button.rawValue
+            } else {
+                amount = amount + button.rawValue
+            }
+        case .comma:
+            amount = amount + button.rawValue
+        case .backspace:
+            amount.removeLast()
+            if amount.isEmpty {
+                amount = "0"
+            }
+        }
     }
 }

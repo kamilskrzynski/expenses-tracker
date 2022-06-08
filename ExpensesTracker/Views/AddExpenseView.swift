@@ -15,9 +15,8 @@ enum CustomSheet {
 struct AddExpenseView: View {
     
     @Environment(\.dismiss) var dismiss
-    @State private var number = "0"
-    
     @Namespace private var animation
+    
     let keyboardButton: [[KeyboardNumber]] = [
         [.seven, .eight, .nine],
         [.four, .five, .six],
@@ -26,13 +25,7 @@ struct AddExpenseView: View {
     ]
     
     @AppStorage("firstTime") var firstTime: Bool = false
-    @State private var accountTypeButtonClicked: Bool = false
-    @State private var expenseTypeButtonClicked: Bool = false
-    @State private var datePickerClicked: Bool = false
-    @State var selectedAccount: Category = Category(emoji: "💳", name: "Credit Card")
-    @State var selectedExpense: Category = Category(emoji: "☕️", name: "Coffee")
     @StateObject private var vm = CategoriesViewModel()
-    @State var selectedDate: Date = Date()
     @State var createNewIncome: Bool = false
     @State var createNewExpense: Bool = false
     @State var createNewAccount: Bool = false
@@ -44,27 +37,13 @@ struct AddExpenseView: View {
         GridItem(.flexible())
     ]
     
-    var selectedDateString: String {
-        if Calendar.current.isDateInToday(selectedDate) {
-            return "Today"
-        } else if Calendar.current.isDateInYesterday(selectedDate) {
-            return "Yesterday"
-        } else {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEEE, MMM d" // OR "dd-MM-yyyy"
-
-            let currentDateString: String = dateFormatter.string(from: selectedDate)
-            return currentDateString
-        }
-    }
-    
     var body: some View {
         NavigationView {
             ZStack(alignment: .bottom) {
                 VStack {
                     Spacer()
                     HStack {
-                        Text(number)
+                        Text(vm.amount)
                             .foregroundColor(.primary)
                             .font(.system(size: 80, weight: .regular))
                         VStack {
@@ -87,10 +66,10 @@ struct AddExpenseView: View {
                     HStack {
                         Button {
                             withAnimation {
-                                datePickerClicked = true
+                                vm.datePickerClicked = true
                             }
                         } label: {
-                            Text(selectedDateString)
+                            Text(vm.selectedDateString)
                                 .foregroundColor(.secondary)
                                 .font(.system(size: 15, weight: .medium))
                         }
@@ -108,10 +87,10 @@ struct AddExpenseView: View {
                     HStack {
                         Button {
                             withAnimation {
-                                self.accountTypeButtonClicked = true
+                                vm.accountTypeButtonClicked = true
                             }
                         } label: {
-                            Text(selectedAccount.emoji + " " + selectedAccount.name)
+                            Text(vm.selectedAccount.emoji + " " + vm.selectedAccount.name)
                                 .foregroundColor(.primary)
                                 .font(.system(size: 16, weight: .medium))
                         }
@@ -122,16 +101,17 @@ struct AddExpenseView: View {
                             .frame(width: 30)
                         Button {
                             withAnimation {
-                                self.expenseTypeButtonClicked = true
+                                vm.expenseTypeButtonClicked = true
                             }
                         } label: {
-                            Text(selectedExpense.emoji + " " + selectedExpense.name)
+                            Text(vm.selectedExpense.emoji + " " + vm.selectedExpense.name)
                                 .foregroundColor(.primary)
                                 .font(.system(size: 16, weight: .medium))
                         }
                         Spacer()
                         Button {
-                            
+                            vm.createExpense()
+                            dismiss()
                         } label: {
                             Text("Save")
                                 .font(.system(size: 14, weight: .semibold))
@@ -149,7 +129,7 @@ struct AddExpenseView: View {
                 }
                 .onTapGesture {
                     withAnimation {
-                        self.datePickerClicked = false
+                        vm.datePickerClicked = false
                     }
                 }
                 .navigationTitle("Expense")
@@ -165,62 +145,62 @@ struct AddExpenseView: View {
                         }
                     }
                 }
-                if datePickerClicked {
+                if vm.datePickerClicked {
                     VStack {
                         Spacer()
                         datePicker
                     }
-                    .background(self.datePickerClicked ? Color.black.opacity(0.3) : Color.clear)
+                    .background(vm.datePickerClicked ? Color.black.opacity(0.3) : Color.clear)
                 }
                 
-                if accountTypeButtonClicked {
+                if vm.accountTypeButtonClicked {
                     VStack {
                         Spacer()
                         accounts
-                            .offset(y: self.accountTypeButtonClicked ? 0 : UIScreen.main.bounds.height)
+                            .offset(y: vm.accountTypeButtonClicked ? 0 : UIScreen.main.bounds.height)
                     }
-                    .background(self.accountTypeButtonClicked ? Color.black.opacity(0.3) : Color.clear)
+                    .background(vm.accountTypeButtonClicked ? Color.black.opacity(0.3) : Color.clear)
                     .onTapGesture {
                         withAnimation {
-                            self.accountTypeButtonClicked = false
+                            vm.accountTypeButtonClicked = false
                         }
                     }
                 }
-                if expenseTypeButtonClicked {
+                
+                if vm.expenseTypeButtonClicked {
                     VStack {
                         Spacer()
                         expenses
-                            .offset(y: self.expenseTypeButtonClicked ? 0 : UIScreen.main.bounds.height)
+                            .offset(y: vm.expenseTypeButtonClicked ? 0 : UIScreen.main.bounds.height)
                         
                     }
-                    .background(self.expenseTypeButtonClicked ? Color.black.opacity(0.3) : Color.clear)
+                    .background(vm.expenseTypeButtonClicked ? Color.black.opacity(0.3) : Color.clear)
                     .onTapGesture {
                         withAnimation {
-                            self.expenseTypeButtonClicked = false
+                            vm.expenseTypeButtonClicked = false
                         }
                     }
                 }
             }
         }
         .onAppear {
-            print(selectedDateString)
             if !firstTime {
                 vm.saveInitialAccounts()
                 vm.saveInitialIncomes()
                 vm.saveInitialExpenses()
                 firstTime = true
-                print(UserDefaults.standard.bool(forKey: "firstTime"))
+                //print(UserDefaults.standard.bool(forKey: "firstTime"))
             }
         }
     }
     
     var datePicker: some View {
         VStack {
-            DatePicker("", selection: $selectedDate, in: ...Date(), displayedComponents: .date)
+            DatePicker("", selection: $vm.selectedDate, in: ...Date(), displayedComponents: .date)
                 .labelsHidden()
                 .datePickerStyle(.graphical)
                 .accentColor(.gray)
-                .offset(y: self.datePickerClicked ? 0 : UIScreen.main.bounds.height)
+                .offset(y: vm.datePickerClicked ? 0 : UIScreen.main.bounds.height)
         }
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
@@ -242,8 +222,11 @@ struct AddExpenseView: View {
                 LazyVGrid(columns: columns) {
                     ForEach(vm.getExpenses(), id: \.self) { expense in
                         Button {
-                            selectedExpense = expense
-                            expenseTypeButtonClicked = false
+                            withAnimation {
+                                vm.selectedExpense = expense
+                                vm.selectedType = "expense"
+                                vm.expenseTypeButtonClicked = false
+                            }
                         } label: {
                             VStack {
                                 Text(expense.emoji)
@@ -264,8 +247,11 @@ struct AddExpenseView: View {
                 LazyVGrid(columns: columns) {
                     ForEach(vm.getIncomes(), id: \.self) { income in
                         Button {
-                            selectedExpense = income
-                            expenseTypeButtonClicked = false
+                            withAnimation {
+                                vm.selectedExpense = income
+                                vm.selectedType = "income"
+                                vm.expenseTypeButtonClicked = false
+                            }
                         } label: {
                             VStack {
                                 Text(income.emoji)
@@ -287,8 +273,10 @@ struct AddExpenseView: View {
                 LazyVGrid(columns: columns) {
                     ForEach(vm.getAccounts(), id: \.self) { account in
                         Button {
-                            selectedAccount = account
-                            expenseTypeButtonClicked = false
+                            withAnimation {
+                                vm.selectedAccount = account
+                                vm.expenseTypeButtonClicked = false
+                            }
                         } label: {
                             VStack {
                                 Text(account.emoji)
@@ -325,8 +313,10 @@ struct AddExpenseView: View {
             LazyVGrid(columns: columns) {
                 ForEach(vm.getAccounts(), id: \.self) { account in
                     Button {
-                        selectedAccount = account
-                        accountTypeButtonClicked = false
+                        withAnimation {
+                            vm.selectedAccount = account
+                            vm.accountTypeButtonClicked = false
+                        }
                     } label: {
                         VStack {
                             Text(account.emoji)
@@ -358,7 +348,9 @@ struct AddExpenseView: View {
                     ForEach(row, id: \.self) { button in
                         if button.rawValue == "delete.backward" {
                             Button {
-                                buttonTapped(button: button)
+                                DispatchQueue.main.async {
+                                    vm.buttonTapped(button: button)
+                                }
                             } label: {
                                 Image(systemName: button.rawValue)
                                     .font(.system(size: 25, weight: .medium))
@@ -367,7 +359,9 @@ struct AddExpenseView: View {
                             .buttonStyle(CustomButtonStyle())
                         } else if button.rawValue == "," {
                             Button {
-                                buttonTapped(button: button)
+                                DispatchQueue.main.async {
+                                    vm.buttonTapped(button: button)
+                                }
                             } label: {
                                 Text(button.rawValue)
                                     .font(.system(size: 30, weight: .medium))
@@ -376,7 +370,9 @@ struct AddExpenseView: View {
                             .buttonStyle(CustomButtonStyle())
                         } else {
                             Button {
-                                buttonTapped(button: button)
+                                DispatchQueue.main.async {
+                                    vm.buttonTapped(button: button)
+                                }
                             } label: {
                                 Text(button.rawValue)
                                     .font(.system(size: 30, weight: .medium))
@@ -388,24 +384,6 @@ struct AddExpenseView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-        }
-    }
-    
-    func buttonTapped(button: KeyboardNumber) {
-        switch button {
-        case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
-            if number == "0" {
-                number = button.rawValue
-            } else {
-                number = number + button.rawValue
-            }
-        case .comma:
-            number = number + button.rawValue
-        case .backspace:
-            number.removeLast()
-            if number.isEmpty {
-                number = "0"
-            }
         }
     }
 }

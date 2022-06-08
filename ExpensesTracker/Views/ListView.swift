@@ -9,20 +9,51 @@ import SwiftUI
 
 struct ListView: View {
     
-    @State var expenses = []
     @State private var isSheetShowed: Bool = false
+    @StateObject private var vm = ListViewModel()
     
     var body: some View {
         NavigationView {
             VStack {
-                if expenses.isEmpty {
+                if vm.expenses.isEmpty {
                     Spacer()
                     Image("Drag")
                     Spacer()
                     Spacer()
-
+                    
                 } else {
-                    Spacer()
+                    ScrollView {
+                        
+                        Text("Spent this week")
+                            .foregroundColor(.secondary)
+                        Text(vm.getAllSpedings())
+                            .foregroundColor(.primary)
+                            .font(.system(size: 50, weight: .medium))
+                        Spacer()
+                            .frame(height: 100)
+                        
+                        ForEach(vm.allEntries, id: \.id) { expense in
+                            
+                            HStack {
+                                Text(expense.typeEmoji)
+                                    .offset(y: 5)
+                                    .font(.system(size: 30))
+                                VStack(spacing: 15) {
+                                    Divider()
+                                    HStack {
+                                        Text(expense.typeName)
+                                        Spacer()
+                                        Text("\(expense.amount, format: .currency(code: "PLN"))")
+                                            .foregroundColor(expense.type == "income" ? .green : .primary)
+                                    }
+                                }
+                            }
+                            .frame(height: 50)
+                            .padding(.horizontal)
+                        }
+                        .padding(.leading, 20)
+                        .listStyle(.plain)
+                    }
                 }
             }
             .toolbar {
@@ -39,15 +70,18 @@ struct ListView: View {
                     Button {
                         isSheetShowed = true
                     } label: {
-                      Image(systemName: "plus.circle.fill")
+                        Image(systemName: "plus.circle.fill")
                             .foregroundColor(.primary)
                             .font(.system(size: 24, weight: .regular))
                     }
                 }
             }
-            .fullScreenCover(isPresented: $isSheetShowed) {
+            .fullScreenCover(isPresented: $isSheetShowed, onDismiss: {
+                vm.getAllExpenses()
+                vm.getAllIncomes()
+            }, content: {
                 AddExpenseView()
-        }
+            })
         }
     }
 }
