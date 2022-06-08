@@ -11,4 +11,6 @@ extension Color {
     
     static let invertedPrimary = Color("invertedPrimary")
     static let customSheetBackground = Color("customSheetBackground")
+    static let appGreen = Color("appGreen")
+    static let appChartGreen = Color("appChartGreen")
 }

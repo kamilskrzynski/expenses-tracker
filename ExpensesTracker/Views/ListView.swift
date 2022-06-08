@@ -36,15 +36,16 @@ struct ListView: View {
                             
                             HStack {
                                 Text(expense.typeEmoji)
-                                    .offset(y: 5)
+                                    .offset(y: 10)
                                     .font(.system(size: 30))
                                 VStack(spacing: 15) {
                                     Divider()
                                     HStack {
                                         Text(expense.typeName)
+                                            .font(.system(size: 18, weight: .medium))
                                         Spacer()
                                         Text("\(expense.amount, format: .currency(code: "PLN"))")
-                                            .foregroundColor(expense.type == "income" ? .green : .primary)
+                                            .foregroundColor(expense.type == "income" ? .appGreen : .primary)
                                     }
                                 }
                             }
