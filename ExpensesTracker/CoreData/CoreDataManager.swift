@@ -14,6 +14,7 @@ class CoreDataManager {
     
     let persistentContainer: NSPersistentContainer
     
+    /// Initializing CoreData Stack
     private init() {
         
         persistentContainer = NSPersistentContainer(name: "Expenses")
@@ -24,6 +25,7 @@ class CoreDataManager {
         }
     }
     
+    /// Saving ManagedObjectContext
     func save() {
         
         do {
@@ -33,19 +35,7 @@ class CoreDataManager {
         }
     }
     
-    func create(account: String, amount: Double, type: String, typeName: String, typeEmoji: String, dateCreated: Date) {
-        
-        let expense = Entry()
-        expense.account = account
-        expense.amount = amount
-        expense.type = type
-        expense.typeName = typeName
-        expense.typeEmoji = typeEmoji
-        expense.dateCreated = dateCreated
-        
-        save()
-    }
-    
+    /// Getting all entries from CoreData
     func getAllEntries() -> [Entry] {
         
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
@@ -58,23 +48,11 @@ class CoreDataManager {
         }
     }
     
-    func getAllIncomes() -> [Entry] {
-        
-        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "type == %@", "income" as String)
-        
-        do {
-            return try persistentContainer.viewContext.fetch(fetchRequest)
-        } catch {
-            print(error)
-            return []
-        }
-    }
-    
+    /// Getting all expenses from CoreData
     func getAllExpenses() -> [Entry] {
         
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "type == %@", "expense" as String)
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
         
         do {
             return try persistentContainer.viewContext.fetch(fetchRequest)
@@ -83,6 +61,19 @@ class CoreDataManager {
             return []
         }
 
+    }
+    /// Getting all incomes from CoreData
+    func getAllIncomes() -> [Entry] {
+        
+        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
+        
+        do {
+            return try persistentContainer.viewContext.fetch(fetchRequest)
+        } catch {
+            print(error)
+            return []
+        }
     }
 }
 

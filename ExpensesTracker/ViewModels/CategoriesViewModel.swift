@@ -38,6 +38,8 @@ class CategoriesViewModel: ObservableObject {
     func createExpense() {
         let manager = CoreDataManager.shared
         let entry = Entry(context: manager.persistentContainer.viewContext)
+        let dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)
+        let date = Calendar.current.date(from: dateComponents)!
         
         entry.type = selectedType
         entry.typeName = selectedExpense.name
@@ -45,6 +47,9 @@ class CategoriesViewModel: ObservableObject {
         entry.account = selectedAccount.name
         entry.amount = Double(amount) ?? 0.0
         entry.dateCreated = selectedDate
+        
+        print("selectedDate: \(selectedDate)")
+        print("date: \(date)")
         
         manager.save()
     }
@@ -73,7 +78,6 @@ class CategoriesViewModel: ObservableObject {
         expensesArray.append(Category(emoji: "🏝", name: "Travel"))
         expensesArray.append(Category(emoji: "🐶", name: "Pets"))
         expensesArray.append(Category(emoji: "🤷", name: "Miscellaneous"))
-        print(expensesArray)
         
         let expenses = try! JSONEncoder().encode(expensesArray)
         UserDefaults.standard.set(expenses, forKey: "expensesCategories")
@@ -119,7 +123,6 @@ class CategoriesViewModel: ObservableObject {
         incomesArray.append(Category(emoji: "👔", name: "Salary"))
         incomesArray.append(Category(emoji: "💼", name: "Business"))
         incomesArray.append(Category(emoji: "💸", name: "Other"))
-        print(incomesArray)
         
         let incomes = try! JSONEncoder().encode(incomesArray)
         UserDefaults.standard.set(incomes, forKey: "incomesCategories")
@@ -136,7 +139,6 @@ class CategoriesViewModel: ObservableObject {
         
         accountsArray.append(Category(emoji: "💳", name: "Credit Card"))
         accountsArray.append(Category(emoji: "💵", name: "Cash"))
-        print(accountsArray)
         
         let accounts = try! JSONEncoder().encode(accountsArray)
         UserDefaults.standard.set(accounts, forKey: "accountsCategories")

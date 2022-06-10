@@ -23,7 +23,11 @@
 		377621F0284F8EA3005180CB /* CategoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621EF284F8EA3005180CB /* CategoriesViewModel.swift */; };
 		377621F3284FBB3E005180CB /* SheetAddButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621F2284FBB3E005180CB /* SheetAddButton.swift */; };
 		377621F528507ECD005180CB /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621F428507ECD005180CB /* CoreDataManager.swift */; };
+		37CFA244285395FE00B59CA7 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA243285395FE00B59CA7 /* Date+Extensions.swift */; };
+		37CFA2462853967200B59CA7 /* Calendar+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA2452853967200B59CA7 /* Calendar+Extensions.swift */; };
 		37F786A42850A1A700B5B720 /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F786A32850A1A700B5B720 /* ListViewModel.swift */; };
+		37F786A72850DBBB00B5B720 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 37F786A62850DBBB00B5B720 /* Collections */; };
+		37F786A92850DBBB00B5B720 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 37F786A82850DBBB00B5B720 /* OrderedCollections */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +48,8 @@
 		377621EF284F8EA3005180CB /* CategoriesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesViewModel.swift; sourceTree = "<group>"; };
 		377621F2284FBB3E005180CB /* SheetAddButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetAddButton.swift; sourceTree = "<group>"; };
 		377621F428507ECD005180CB /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		37CFA243285395FE00B59CA7 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
+		37CFA2452853967200B59CA7 /* Calendar+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calendar+Extensions.swift"; sourceTree = "<group>"; };
 		37F786A32850A1A700B5B720 /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -52,6 +58,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37F786A92850DBBB00B5B720 /* OrderedCollections in Frameworks */,
+				37F786A72850DBBB00B5B720 /* Collections in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +120,8 @@
 			children = (
 				377621E4284F529A005180CB /* Color+Extensions.swift */,
 				377621E9284F5A7A005180CB /* Button+Extensions.swift */,
+				37CFA243285395FE00B59CA7 /* Date+Extensions.swift */,
+				37CFA2452853967200B59CA7 /* Calendar+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -178,6 +188,10 @@
 			dependencies = (
 			);
 			name = ExpensesTracker;
+			packageProductDependencies = (
+				37F786A62850DBBB00B5B720 /* Collections */,
+				37F786A82850DBBB00B5B720 /* OrderedCollections */,
+			);
 			productName = ExpensesTracker;
 			productReference = 375CFAE6284DF05C00B80FA9 /* ExpensesTracker.app */;
 			productType = "com.apple.product-type.application";
@@ -206,6 +220,9 @@
 				Base,
 			);
 			mainGroup = 375CFADD284DF05C00B80FA9;
+			packageReferences = (
+				37F786A52850DBBB00B5B720 /* XCRemoteSwiftPackageReference "swift-collections" */,
+			);
 			productRefGroup = 375CFAE7284DF05C00B80FA9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -240,7 +257,9 @@
 				37F786A42850A1A700B5B720 /* ListViewModel.swift in Sources */,
 				375CFAEA284DF05C00B80FA9 /* ExpensesTrackerApp.swift in Sources */,
 				377621F3284FBB3E005180CB /* SheetAddButton.swift in Sources */,
+				37CFA2462853967200B59CA7 /* Calendar+Extensions.swift in Sources */,
 				377621E3284F3FEC005180CB /* AddExpenseView.swift in Sources */,
+				37CFA244285395FE00B59CA7 /* Date+Extensions.swift in Sources */,
 				375CFB04284E211800B80FA9 /* Expenses.xcdatamodeld in Sources */,
 				377621F0284F8EA3005180CB /* CategoriesViewModel.swift in Sources */,
 				377621E8284F5992005180CB /* KeyboardNumbers.swift in Sources */,
@@ -447,6 +466,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		37F786A52850DBBB00B5B720 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		37F786A62850DBBB00B5B720 /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 37F786A52850DBBB00B5B720 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
+		};
+		37F786A82850DBBB00B5B720 /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 37F786A52850DBBB00B5B720 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		375CFB02284E211800B80FA9 /* Expenses.xcdatamodeld */ = {

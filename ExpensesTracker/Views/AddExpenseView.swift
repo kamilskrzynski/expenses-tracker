@@ -145,14 +145,22 @@ struct AddExpenseView: View {
                         }
                     }
                 }
+                
+                /// Shows custom DatePicker modal
                 if vm.datePickerClicked {
                     VStack {
                         Spacer()
+                            .onTapGesture {
+                                withAnimation {
+                                    vm.datePickerClicked = false
+                                }
+                            }
                         datePicker
                     }
                     .background(vm.datePickerClicked ? Color.black.opacity(0.3) : Color.clear)
                 }
                 
+                /// Shows account modal
                 if vm.accountTypeButtonClicked {
                     VStack {
                         Spacer()
@@ -167,6 +175,7 @@ struct AddExpenseView: View {
                     }
                 }
                 
+                /// Shows expenses modal
                 if vm.expenseTypeButtonClicked {
                     VStack {
                         Spacer()
@@ -184,16 +193,17 @@ struct AddExpenseView: View {
             }
         }
         .onAppear {
+            /// Used to create initial categories
             if !firstTime {
                 vm.saveInitialAccounts()
                 vm.saveInitialIncomes()
                 vm.saveInitialExpenses()
                 firstTime = true
-                //print(UserDefaults.standard.bool(forKey: "firstTime"))
             }
         }
     }
     
+    // MARK: DatePicker Modal
     var datePicker: some View {
         VStack {
             DatePicker("", selection: $vm.selectedDate, in: ...Date(), displayedComponents: .date)
@@ -211,6 +221,7 @@ struct AddExpenseView: View {
         .padding(.horizontal, 5)
     }
     
+    // MARK: Expenses Modal
     var expenses: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 20) {
@@ -305,6 +316,7 @@ struct AddExpenseView: View {
         .padding(.horizontal, 5)
     }
     
+    // MARK: Accounts Modal
     var accounts: some View {
         VStack(spacing: 20) {
             Text("ACCOUNTS")
@@ -341,6 +353,7 @@ struct AddExpenseView: View {
         .padding(.horizontal, 5)
     }
     
+    // MARK: Custom keyboard
     var keyboard: some View {
         VStack(spacing: 20) {
             ForEach(keyboardButton, id: \.self) { row in

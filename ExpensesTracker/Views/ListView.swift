@@ -22,38 +22,80 @@ struct ListView: View {
                     Spacer()
                     
                 } else {
-                    ScrollView {
+                    ScrollView(showsIndicators: false) {
                         
                         Text("Spent this week")
                             .foregroundColor(.secondary)
-                        Text(vm.getAllSpedings())
+                        HStack(spacing: 0) {
+                            
+                            Text(vm.getSpedings()[0])
                             .foregroundColor(.primary)
-                            .font(.system(size: 50, weight: .medium))
+                            .font(.system(size: 60, weight: .medium))
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    
+                                Text(",\(vm.getSpedings()[1])")
+                                    .foregroundColor(.primary)
+                                    .font(.system(size: 25, weight: .medium))
+                                Text("zł")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 25, weight: .medium))
+                                }
+                                Spacer()
+                            }
+                        }
+                        .frame(height: 55)
                         Spacer()
                             .frame(height: 100)
-                        
-                        ForEach(vm.allEntries, id: \.id) { expense in
-                            
-                            HStack {
-                                Text(expense.typeEmoji)
-                                    .offset(y: 10)
-                                    .font(.system(size: 30))
-                                VStack(spacing: 15) {
-                                    Divider()
+                        ForEach(Array(vm.groupEntryByDay()), id: \.key) { day, entries in
+                            Section {
+                                ForEach(entries, id: \.id) { entry in
                                     HStack {
-                                        Text(expense.typeName)
-                                            .font(.system(size: 18, weight: .medium))
-                                        Spacer()
-                                        Text("\(expense.amount, format: .currency(code: "PLN"))")
-                                            .foregroundColor(expense.type == "income" ? .appGreen : .primary)
+                                        Text(entry.typeEmoji)
+                                            .offset(y: -5)
+                                            .font(.system(size: 30))
+                                        VStack(spacing: 15) {
+                                            HStack {
+                                                Text(entry.typeName)
+                                                    .font(.system(size: 18, weight: .medium))
+                                                Spacer()
+                                                Text("\(entry.amount, format: .currency(code: "PLN"))")
+                                                    .foregroundColor(entry.type == "income" ? .appGreen : .primary)
+                                            }
+                                            Divider()
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                    .padding(.leading)
+                                }
+                                .listRowBackground(Color.clear)
+                            } header: {
+                                Spacer()
+                                    .frame(height: 30)
+                                HStack {
+                                    Spacer()
+                                        .frame(width: 40)
+                                    VStack(spacing: 15) {
+                                        HStack {
+                                            Text(vm.getDay(selectedDate: day))
+                                                .foregroundColor(.secondary)
+                                                .font(.system(size: 18, weight: .regular))
+                                            Spacer()
+                                            Text("\(vm.getSpendingsFromDay(day: day)) zł")
+                                                .foregroundColor(.secondary)
+                                        }
+                                        Divider()
                                     }
                                 }
+                                .padding(.horizontal)
+                                .padding(.leading)
                             }
-                            .frame(height: 50)
-                            .padding(.horizontal)
+                            .listSectionSeparator(.hidden)
                         }
-                        .padding(.leading, 20)
-                        .listStyle(.plain)
+                        .onAppear {
+                            print(Date())
+                            print(Date().startOfWeek())
+                        }
                     }
                 }
             }
@@ -80,6 +122,7 @@ struct ListView: View {
             .fullScreenCover(isPresented: $isSheetShowed, onDismiss: {
                 vm.getAllExpenses()
                 vm.getAllIncomes()
+                vm.getAllEntries()
             }, content: {
                 AddExpenseView()
             })
