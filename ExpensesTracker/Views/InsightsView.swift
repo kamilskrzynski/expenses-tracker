@@ -20,55 +20,60 @@ struct InsightsView: View {
     var body: some View {
         NavigationView {
             
-            if vm.incomes.isEmpty {
-                Spacer()
-                Image("InsightsData")
-                Spacer()
-                
-                
-            } else {
-                ScrollView {
-                    VStack(alignment: .leading) {
-                        HStack {
-                        Text(selectedOverviewCategory == .expenses ? " Total spent this week" : " Total revenue this week")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.secondary)
-                            Spacer()
+            VStack {
+                if vm.expenses.isEmpty {
+                    Spacer()
+                    Image("InsightsData")
+                    Spacer()
+                    Spacer()
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text(selectedOverviewCategory == .expenses ? " Total spent this week" : " Total revenue this week")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .navigationTitle(selectedOverviewCategory == .expenses ? "\(vm.getSpendingsAmount()[0]),\(vm.getSpendingsAmount()[1]) zł" : "\(vm.getIncomesAmount()[0]),\(vm.getIncomesAmount()[1]) zł")
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Menu {
+                                Button {
+                                    selectedOverviewCategory = .expenses
+                                } label: {
+                                    HStack {
+                                        if selectedOverviewCategory == .expenses {
+                                            Image(systemName: "checkmark")
+                                        }
+                                        Text("Expenses")
+                                    }
+                                }
+                                Button {
+                                    selectedOverviewCategory = .incomes
+                                } label: {
+                                    HStack {
+                                        if selectedOverviewCategory == .incomes {
+                                            Image(systemName: "checkmark")
+                                        }
+                                        Text("Incomes")
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "ellipsis.circle")
+                                    .foregroundColor(.primary)
+                                    .font(.system(size: 24, weight: .regular))
+                            }
                         }
                     }
                 }
-                .padding(.horizontal)
-                .navigationTitle(selectedOverviewCategory == .expenses ? "\(vm.getSpedings()[0]),\(vm.getSpedings()[1]) zł" : "\(vm.getIncomes()[0]),\(vm.getIncomes()[1]) zł")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu {
-                            Button {
-                                selectedOverviewCategory = .expenses
-                            } label: {
-                                HStack {
-                                    if selectedOverviewCategory == .expenses {
-                                        Image(systemName: "checkmark")
-                                    }
-                                    Text("Expenses")
-                                }
-                            }
-                            Button {
-                                selectedOverviewCategory = .incomes
-                            } label: {
-                                HStack {
-                                    if selectedOverviewCategory == .incomes {
-                                        Image(systemName: "checkmark")
-                                    }
-                                    Text("Incomes")
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                                .foregroundColor(.primary)
-                                .font(.system(size: 24, weight: .regular))
-                        }
-                    }
-                }
+            }
+            .onAppear {
+                vm.getAllExpenses()
+                vm.getAllIncomes()
             }
         }
     }

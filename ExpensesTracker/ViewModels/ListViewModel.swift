@@ -43,7 +43,7 @@ final class ListViewModel: ObservableObject {
     }
     
     /// Getting total spendings from single day
-    func getSpendingsFromDay(day: Date) -> String {
+    func getSpendingsFromDay(day: Date) -> Double {
         
         var dailySpendings: Double = 0
         for expense in expenses {
@@ -51,8 +51,7 @@ final class ListViewModel: ObservableObject {
                 dailySpendings += expense.amount
             }
         }
-        let dailySpendingsString = String(format: "%.2f", dailySpendings)
-        return dailySpendingsString
+        return dailySpendings
     }
     
     /// Getting all entries

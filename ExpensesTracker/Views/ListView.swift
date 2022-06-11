@@ -28,13 +28,13 @@ struct ListView: View {
                             .foregroundColor(.secondary)
                         HStack(spacing: 0) {
                             
-                            Text(vm.getSpedings()[0])
+                            Text(vm.getSpendingsAmount()[0])
                             .foregroundColor(.primary)
                             .font(.system(size: 60, weight: .medium))
                             VStack(alignment: .leading) {
                                 HStack {
                                     
-                                Text(",\(vm.getSpedings()[1])")
+                                Text(",\(vm.getSpendingsAmount()[1])")
                                     .foregroundColor(.primary)
                                     .font(.system(size: 25, weight: .medium))
                                 Text("zł")
@@ -81,8 +81,9 @@ struct ListView: View {
                                                 .foregroundColor(.secondary)
                                                 .font(.system(size: 18, weight: .regular))
                                             Spacer()
-                                            Text("\(vm.getSpendingsFromDay(day: day)) zł")
+                                            Text("\(vm.getSpendingsFromDay(day: day), format: .currency(code: "PLN"))")
                                                 .foregroundColor(.secondary)
+                                                .font(.system(size: 14, weight: .medium))
                                         }
                                         Divider()
                                     }

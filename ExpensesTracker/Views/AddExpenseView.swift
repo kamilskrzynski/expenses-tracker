@@ -150,7 +150,11 @@ struct AddExpenseView: View {
                 if vm.datePickerClicked {
                     VStack {
                         Spacer()
-                            .onTapGesture {
+                        /// This rectangle is to dismiss DatePicker
+                        /// While trying to dismiss like other Custom Modal Sheets, DatePicker doesn't save new date
+                        Rectangle()
+                            .foregroundColor(Color.black.opacity(0.01))
+                            .frame(height: UIScreen.main.bounds.height / 2.6)                    .onTapGesture {
                                 withAnimation {
                                     vm.datePickerClicked = false
                                 }
