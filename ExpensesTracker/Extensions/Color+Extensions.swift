@@ -13,4 +13,5 @@ extension Color {
     static let customSheetBackground = Color("customSheetBackground")
     static let appGreen = Color("appGreen")
     static let appChartGreen = Color("appChartGreen")
+    static let appChartGray = Color("appChartGray")
 }

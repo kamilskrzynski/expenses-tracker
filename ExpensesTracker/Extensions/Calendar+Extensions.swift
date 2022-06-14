@@ -9,4 +9,5 @@ import Foundation
 
 extension Calendar {
     static let gregorian = Calendar(identifier: .gregorian)
+    static let iso8601 = Calendar(identifier: .iso8601)
 }

@@ -60,6 +60,7 @@ struct ListView: View {
                                                     .font(.system(size: 18, weight: .medium))
                                                 Spacer()
                                                 Text("\(entry.amount, format: .currency(code: "PLN"))")
+                                                    .font(.system(size: 15, weight: .regular))
                                                     .foregroundColor(entry.type == "income" ? .appGreen : .primary)
                                             }
                                             Divider()
@@ -93,10 +94,6 @@ struct ListView: View {
                             }
                             .listSectionSeparator(.hidden)
                         }
-                        .onAppear {
-                            print(Date())
-                            print(Date().startOfWeek())
-                        }
                     }
                 }
             }
@@ -124,6 +121,7 @@ struct ListView: View {
                 vm.getAllExpenses()
                 vm.getAllIncomes()
                 vm.getAllEntries()
+                vm.getAllExpensesForCurrentWeek()
             }, content: {
                 AddExpenseView()
             })
