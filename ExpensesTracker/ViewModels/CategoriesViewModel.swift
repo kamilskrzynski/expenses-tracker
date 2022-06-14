@@ -7,10 +7,15 @@
 
 import Foundation
 
+enum Categories: String {
+    case Expense, Income, Account
+}
+
 class CategoriesViewModel: ObservableObject {
     
-    @Published var emoji: String = ""
-    @Published var name: String = ""
+    // MARK: Published values
+    @Published var emoji: String = "⭐️"
+    @Published var categoryName: String = ""
     @Published var selectedDate = Date()
     @Published var amount: String = "0"
     @Published var account: String = ""
@@ -21,6 +26,7 @@ class CategoriesViewModel: ObservableObject {
     @Published var selectedExpense: Category = Category(emoji: "☕️", name: "Coffee")
     @Published var selectedType: String = "expense"
     
+    /// Custom computed property to manipulate showed date
     var selectedDateString: String {
         if Calendar.current.isDateInToday(selectedDate) {
             return "Today"
@@ -35,11 +41,11 @@ class CategoriesViewModel: ObservableObject {
         }
     }
     
+    // MARK: Create
+    /// Creating new entry and saving to CoreData
     func createExpense() {
         let manager = CoreDataManager.shared
         let entry = Entry(context: manager.persistentContainer.viewContext)
-        let dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)
-        let date = Calendar.current.date(from: dateComponents)!
         
         entry.type = selectedType
         entry.typeName = selectedExpense.name
@@ -48,12 +54,11 @@ class CategoriesViewModel: ObservableObject {
         entry.amount = Double(amount) ?? 0.0
         entry.dateCreated = selectedDate
         
-        print("selectedDate: \(selectedDate)")
-        print("date: \(date)")
-        
         manager.save()
     }
     
+    // MARK: SaveInitial
+    /// Creating initial expense categories and saving to UserDefaults
     func saveInitialExpenses() {
         var expensesArray = [Category]()
         
@@ -83,42 +88,9 @@ class CategoriesViewModel: ObservableObject {
         UserDefaults.standard.set(expenses, forKey: "expensesCategories")
     }
     
-    func getExpenses() -> [Category] {
-        let expenses = UserDefaults.standard.data(forKey: "expensesCategories")
-        let expensesArray = try! JSONDecoder().decode([Category].self, from: expenses!)
-        return expensesArray
-    }
-    
-    func addIncome() {
-        var newIncomesArray = getIncomes()
-        let newIncome = Category(emoji: emoji, name: name)
-        newIncomesArray.append(newIncome)
-        
-        let newIncomes = try! JSONEncoder().encode(newIncomesArray)
-        UserDefaults.standard.set(newIncomes, forKey: "incomesCategories")
-    }
-    
-    func addExpense() {
-        var newExpensesArray = getExpenses()
-        let newExpense = Category(emoji: emoji, name: name)
-        newExpensesArray.append(newExpense)
-        
-        let newExpenses = try! JSONEncoder().encode(newExpensesArray)
-        UserDefaults.standard.set(newExpenses, forKey: "expensesCategories")
-    }
-    
-    func addAccount() {
-        var newAccountsArray = getAccounts()
-        let newAccount = Category(emoji: emoji, name: name)
-        newAccountsArray.append(newAccount)
-        
-        let newAccounts = try! JSONEncoder().encode(newAccountsArray)
-        UserDefaults.standard.set(newAccounts, forKey: "accountsCategories")
-    }
-    
+    /// Creating initial income categories and saving to UserDefaults
     func saveInitialIncomes() {
         var incomesArray = [Category]()
-        
         
         incomesArray.append(Category(emoji: "👔", name: "Salary"))
         incomesArray.append(Category(emoji: "💼", name: "Business"))
@@ -128,12 +100,7 @@ class CategoriesViewModel: ObservableObject {
         UserDefaults.standard.set(incomes, forKey: "incomesCategories")
     }
     
-    func getIncomes() -> [Category] {
-        let incomes = UserDefaults.standard.data(forKey: "incomesCategories")
-        let incomesArray = try! JSONDecoder().decode([Category].self, from: incomes!)
-        return incomesArray
-    }
-    
+    /// Creating initial account categories and saving to UserDefaults
     func saveInitialAccounts() {
         var accountsArray = [Category]()
         
@@ -144,10 +111,54 @@ class CategoriesViewModel: ObservableObject {
         UserDefaults.standard.set(accounts, forKey: "accountsCategories")
     }
     
+    // MARK: Get
+    /// Getting expense categories from UserDefaults
+    func getExpenses() -> [Category] {
+        let expenses = UserDefaults.standard.data(forKey: "expensesCategories")
+        let expensesArray = try! JSONDecoder().decode([Category].self, from: expenses!)
+        return expensesArray
+    }
+    
+    /// Getting income categories from UserDefaults
+    func getIncomes() -> [Category] {
+        let incomes = UserDefaults.standard.data(forKey: "incomesCategories")
+        let incomesArray = try! JSONDecoder().decode([Category].self, from: incomes!)
+        return incomesArray
+    }
+    
+    /// Getting account categories from UserDefaults
     func getAccounts() -> [Category] {
         let accounts = UserDefaults.standard.data(forKey: "accountsCategories")
         let accountsArray = try! JSONDecoder().decode([Category].self, from: accounts!)
         return accountsArray
+    }
+    
+    // MARK: Add
+    /// Adding new expense/income/account category
+    func add(category: Categories) {
+        switch category {
+        case .Expense:
+            var newExpensesArray = getExpenses()
+            let newExpense = Category(emoji: emoji, name: categoryName)
+            newExpensesArray.append(newExpense)
+            
+            let newExpenses = try! JSONEncoder().encode(newExpensesArray)
+            UserDefaults.standard.set(newExpenses, forKey: "expensesCategories")
+        case .Income:
+            var newAccountsArray = getAccounts()
+            let newAccount = Category(emoji: emoji, name: categoryName)
+            newAccountsArray.append(newAccount)
+            
+            let newAccounts = try! JSONEncoder().encode(newAccountsArray)
+            UserDefaults.standard.set(newAccounts, forKey: "accountsCategories")
+        case .Account:
+            var newAccountsArray = getAccounts()
+            let newAccount = Category(emoji: emoji, name: categoryName)
+            newAccountsArray.append(newAccount)
+            
+            let newAccounts = try! JSONEncoder().encode(newAccountsArray)
+            UserDefaults.standard.set(newAccounts, forKey: "accountsCategories")
+        }
     }
     
     // MARK: Tapping buttons

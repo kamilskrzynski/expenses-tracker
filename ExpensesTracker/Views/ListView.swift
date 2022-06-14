@@ -16,117 +16,115 @@ struct ListView: View {
         NavigationView {
             VStack {
                 if vm.expenses.isEmpty {
-                    Spacer()
-                    Image("Drag")
-                    Spacer()
-                    Spacer()
-                    
+                    dragImage
                 } else {
                     ScrollView(showsIndicators: false) {
-                        
-                        Text("Spent this week")
-                            .foregroundColor(.secondary)
-                        HStack(spacing: 0) {
-                            
-                            Text(vm.getSpendingsAmount()[0])
-                            .foregroundColor(.primary)
-                            .font(.system(size: 60, weight: .medium))
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    
-                                Text(",\(vm.getSpendingsAmount()[1])")
-                                    .foregroundColor(.primary)
-                                    .font(.system(size: 25, weight: .medium))
-                                Text("zł")
-                                        .foregroundColor(.secondary)
-                                        .font(.system(size: 25, weight: .medium))
-                                }
-                                Spacer()
-                            }
-                        }
-                        .frame(height: 55)
+                        header
                         Spacer()
                             .frame(height: 100)
-                        ForEach(Array(vm.groupEntryByDay()), id: \.key) { day, entries in
-                            Section {
-                                ForEach(entries, id: \.id) { entry in
-                                    HStack {
-                                        Text(entry.typeEmoji)
-                                            .offset(y: -5)
-                                            .font(.system(size: 30))
-                                        VStack(spacing: 15) {
-                                            HStack {
-                                                Text(entry.typeName)
-                                                    .font(.system(size: 18, weight: .medium))
-                                                Spacer()
-                                                Text("\(entry.amount, format: .currency(code: "PLN"))")
-                                                    .font(.system(size: 15, weight: .regular))
-                                                    .foregroundColor(entry.type == "income" ? .appGreen : .primary)
-                                            }
-                                            Divider()
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                    .padding(.leading)
-                                }
-                                .listRowBackground(Color.clear)
-                            } header: {
-                                Spacer()
-                                    .frame(height: 30)
-                                HStack {
-                                    Spacer()
-                                        .frame(width: 40)
-                                    VStack(spacing: 15) {
-                                        HStack {
-                                            Text(vm.getDay(selectedDate: day))
-                                                .foregroundColor(.secondary)
-                                                .font(.system(size: 18, weight: .regular))
-                                            Spacer()
-                                            Text("\(vm.getSpendingsFromDay(day: day), format: .currency(code: "PLN"))")
-                                                .foregroundColor(.secondary)
-                                                .font(.system(size: 14, weight: .medium))
-                                        }
-                                        Divider()
-                                    }
-                                }
-                                .padding(.horizontal)
-                                .padding(.leading)
-                            }
-                            .listSectionSeparator(.hidden)
-                        }
+                        entriesList
                     }
                 }
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.primary)
-                            .font(.system(size: 24, weight: .regular))
-                    }
+                    toolbarLeading
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        isSheetShowed = true
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.primary)
-                            .font(.system(size: 24, weight: .regular))
-                    }
+                    toolbarTrailing
                 }
             }
             .fullScreenCover(isPresented: $isSheetShowed, onDismiss: {
-                vm.getAllExpenses()
-                vm.getAllIncomes()
-                vm.getAllEntries()
-                vm.getAllExpensesForCurrentWeek()
+                refreshView()
             }, content: {
                 AddExpenseView()
             })
         }
     }
+    
+    // MARK: ToolbarLeading
+    var toolbarLeading: some View {
+        Button {
+            
+        } label: {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.primary)
+                .font(.system(size: 24, weight: .regular))
+        }
+    }
+    
+    // MARK: ToolbarTrailing
+    var toolbarTrailing: some View {
+        Button {
+            isSheetShowed = true
+        } label: {
+            Image(systemName: "plus.circle.fill")
+                .foregroundColor(.primary)
+                .font(.system(size: 24, weight: .regular))
+        }
+    }
+    
+    // MARK: EntriesList
+    var entriesList: some View {
+        ForEach(Array(vm.groupEntryByDay()), id: \.key) { day, entries in
+            Section {
+                ForEach(entries, id: \.id) { entry in
+                    EntriesListRowView(entry: entry)
+                }
+                .listRowBackground(Color.clear)
+            } header: {
+                EntriesListHeaderView(day: day)
+            }
+            .listSectionSeparator(.hidden)
+        }
+    }
+
+    // MARK: Header
+    var header: some View {
+        VStack {
+            Text("Spent this week")
+                .foregroundColor(.secondary)
+            HStack(spacing: 0) {
+                
+                Text(vm.getExpensesAmount()[0])
+                    .foregroundColor(.primary)
+                    .font(.system(size: 60, weight: .medium))
+                VStack(alignment: .leading) {
+                    HStack {
+                        
+                        Text(",\(vm.getExpensesAmount()[1])")
+                            .foregroundColor(.primary)
+                            .font(.system(size: 25, weight: .medium))
+                        Text("zł")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 25, weight: .medium))
+                    }
+                    Spacer()
+                }
+            }
+            .frame(height: 55)
+        }
+    }
+    
+    // MARK: DragImage
+    var dragImage: some View {
+        VStack {
+            Spacer()
+            Image("Drag")
+            Spacer()
+            Spacer()
+        }
+    }
+    
+    // MARK: RefreshView
+    func refreshView() {
+        vm.getAll(entryType: .expenses)
+        vm.getAll(entryType: .incomes)
+        vm.getAllEntries()
+        vm.getAllForCurrentWeek(entryType: .incomes)
+        vm.getAllForCurrentWeek(entryType: .expenses)
+    }
+    
 }
 
 struct ListView_Previews: PreviewProvider {

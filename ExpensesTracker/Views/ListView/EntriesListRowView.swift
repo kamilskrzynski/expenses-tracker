@@ -36,11 +36,7 @@ struct EntriesListRowView: View {
 struct EntriesListRowView_Previews: PreviewProvider {
     static var previews: some View {
         EntriesListRowView(entry:
-                            EntryViewModel(
-                                entry: Entry(context:
-                                                CoreDataManager.shared.persistentContainer.viewContext
-                                            )
-                            )
+                            EntryViewModel(entry: Entry(context:CoreDataManager.shared.persistentContainer.viewContext))
         )
     }
 }

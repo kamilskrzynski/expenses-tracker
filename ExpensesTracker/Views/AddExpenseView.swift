@@ -42,86 +42,11 @@ struct AddExpenseView: View {
             ZStack(alignment: .bottom) {
                 VStack {
                     Spacer()
-                    HStack {
-                        Text(vm.amount)
-                            .foregroundColor(.primary)
-                            .font(.system(size: 80, weight: .regular))
-                        VStack {
-                            
-                            Text("zł")
-                                .foregroundColor(.primary.opacity(0.5))
-                                .font(.system(size: 40, weight: .regular))
-                            Spacer()
-                        }
-                    }
-                    .matchedGeometryEffect(id: "Timeline", in: animation, isSource: true)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 1)
-                            .frame(height: 3)
-                            .foregroundColor(.secondary)
-                            .matchedGeometryEffect(id: "Timeline", in: animation, isSource: false)
-                    )
-                    .frame(height: 80)
+                    header
                     Spacer()
-                    HStack {
-                        Button {
-                            withAnimation {
-                                vm.datePickerClicked = true
-                            }
-                        } label: {
-                            Text(vm.selectedDateString)
-                                .foregroundColor(.secondary)
-                                .font(.system(size: 15, weight: .medium))
-                        }
-                        Image(systemName: "circle.fill")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 1))
-                        Text("Unlock notes")
-                            .foregroundColor(.secondary.opacity(0.7))
-                            .font(.system(size: 15, weight: .medium))
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    
+                    dateAndNotes
                     Divider()
-                    HStack {
-                        Button {
-                            withAnimation {
-                                vm.accountTypeButtonClicked = true
-                            }
-                        } label: {
-                            Text(vm.selectedAccount.emoji + " " + vm.selectedAccount.name)
-                                .foregroundColor(.primary)
-                                .font(.system(size: 16, weight: .medium))
-                        }
-                        Image(systemName: "arrow.right")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 13, weight: .medium))
-                        Spacer()
-                            .frame(width: 30)
-                        Button {
-                            withAnimation {
-                                vm.expenseTypeButtonClicked = true
-                            }
-                        } label: {
-                            Text(vm.selectedExpense.emoji + " " + vm.selectedExpense.name)
-                                .foregroundColor(.primary)
-                                .font(.system(size: 16, weight: .medium))
-                        }
-                        Spacer()
-                        Button {
-                            vm.createExpense()
-                            dismiss()
-                        } label: {
-                            Text("Save")
-                                .font(.system(size: 14, weight: .semibold))
-                        }
-                        .foregroundColor(.invertedPrimary)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(RoundedRectangle(cornerRadius: 20).foregroundColor(.primary))
-                    }
-                    .padding(.horizontal)
+                    accountsAndSaveButton
                     Divider()
                     Spacer()
                         .frame(height: 30)
@@ -136,13 +61,7 @@ struct AddExpenseView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Text("Cancel")
-                                .font(.system(size: 17, weight: .medium))
-                                .foregroundColor(.secondary)
-                        }
+                        toolbarButton
                     }
                 }
                 
@@ -154,7 +73,8 @@ struct AddExpenseView: View {
                         /// While trying to dismiss like other Custom Modal Sheets, DatePicker doesn't save new date
                         Rectangle()
                             .foregroundColor(Color.black.opacity(0.01))
-                            .frame(height: UIScreen.main.bounds.height / 2.6)                    .onTapGesture {
+                            .frame(height: UIScreen.main.bounds.height / 2.6)
+                            .onTapGesture {
                                 withAnimation {
                                     vm.datePickerClicked = false
                                 }
@@ -207,6 +127,106 @@ struct AddExpenseView: View {
         }
     }
     
+    // MARK: Toolbar Button
+    var toolbarButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Text("Cancel")
+                .font(.system(size: 17, weight: .medium))
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    // MARK: Date and notes
+    var dateAndNotes: some View {
+        HStack {
+            Button {
+                withAnimation {
+                    vm.datePickerClicked = true
+                }
+            } label: {
+                Text(vm.selectedDateString)
+                    .foregroundColor(.secondary)
+                    .font(.system(size: 15, weight: .medium))
+            }
+            Image(systemName: "circle.fill")
+                .foregroundColor(.secondary)
+                .font(.system(size: 1))
+            Text("Unlock notes")
+                .foregroundColor(.secondary.opacity(0.7))
+                .font(.system(size: 15, weight: .medium))
+            Spacer()
+        }
+        .padding(.horizontal)
+    }
+    
+    // MARK: Accounts and Save Button
+    var accountsAndSaveButton: some View {
+        HStack {
+            Button {
+                withAnimation {
+                    vm.accountTypeButtonClicked = true
+                }
+            } label: {
+                Text(vm.selectedAccount.emoji + " " + vm.selectedAccount.name)
+                    .foregroundColor(.primary)
+                    .font(.system(size: 16, weight: .medium))
+            }
+            Image(systemName: "arrow.right")
+                .foregroundColor(.secondary)
+                .font(.system(size: 13, weight: .medium))
+            Spacer()
+                .frame(width: 30)
+            Button {
+                withAnimation {
+                    vm.expenseTypeButtonClicked = true
+                }
+            } label: {
+                Text(vm.selectedExpense.emoji + " " + vm.selectedExpense.name)
+                    .foregroundColor(.primary)
+                    .font(.system(size: 16, weight: .medium))
+            }
+            Spacer()
+            Button {
+                vm.createExpense()
+                dismiss()
+            } label: {
+                Text("Save")
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .foregroundColor(.invertedPrimary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(RoundedRectangle(cornerRadius: 20).foregroundColor(.primary))
+        }
+        .padding(.horizontal)
+    }
+    
+    // MARK: Header
+    var header: some View {
+        HStack {
+            Text(vm.amount)
+                .foregroundColor(.primary)
+                .font(.system(size: 80, weight: .regular))
+            VStack {
+                
+                Text("zł")
+                    .foregroundColor(.primary.opacity(0.5))
+                    .font(.system(size: 40, weight: .regular))
+                Spacer()
+            }
+        }
+        .matchedGeometryEffect(id: "Timeline", in: animation, isSource: true)
+        .overlay(
+            RoundedRectangle(cornerRadius: 1)
+                .frame(height: 3)
+                .foregroundColor(.secondary)
+                .matchedGeometryEffect(id: "Timeline", in: animation, isSource: false)
+        )
+        .frame(height: 80)
+    }
+    
     // MARK: DatePicker Modal
     var datePicker: some View {
         VStack {
@@ -254,7 +274,19 @@ struct AddExpenseView: View {
                             .foregroundColor(.secondary)
                         }
                     }
-                    SheetAddButton(action: createNewIncome = true)
+                    Button {
+                        createNewExpense = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 21, weight: .semibold))
+                            .foregroundColor(.secondary)
+                            .background(Circle().frame(width: 60, height: 60).foregroundColor(.gray.opacity(0.3)))
+                    }
+                    .fullScreenCover(isPresented: $createNewExpense) {
+                        NavigationView {
+                            AddCategoryView(category: Categories.Expense)
+                        }
+                    }
                 }
                 Text("INCOMES")
                     .foregroundColor(.secondary)
@@ -280,7 +312,20 @@ struct AddExpenseView: View {
                         }
                     }
                     
-                    SheetAddButton(action: createNewExpense = true)
+                    Button {
+                        createNewIncome = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 21, weight: .semibold))
+                            .foregroundColor(.secondary)
+                            .background(Circle().frame(width: 60, height: 60).foregroundColor(.gray.opacity(0.3)))
+                    }
+                    .fullScreenCover(isPresented: $createNewIncome) {
+                        NavigationView {
+                            AddCategoryView(category: Categories.Income)
+                        }
+                    }
+
                 }
                 Text("ACCOUNTS")
                     .foregroundColor(.secondary)
@@ -304,7 +349,19 @@ struct AddExpenseView: View {
                             .foregroundColor(.secondary)
                         }
                     }
-                    SheetAddButton(action: createNewAccount = true)
+                    Button {
+                        createNewAccount = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 21, weight: .semibold))
+                            .foregroundColor(.secondary)
+                            .background(Circle().frame(width: 60, height: 60).foregroundColor(.gray.opacity(0.3)))
+                    }
+                    .fullScreenCover(isPresented: $createNewAccount) {
+                        NavigationView {
+                            AddCategoryView(category: Categories.Account)
+                        }
+                    }
                 }
                 
                 Spacer()
@@ -345,7 +402,19 @@ struct AddExpenseView: View {
                         .foregroundColor(.secondary)
                     }
                 }
-                SheetAddButton(action: createNewAccount = true)
+                Button {
+                    createNewAccount = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 21, weight: .semibold))
+                        .foregroundColor(.secondary)
+                        .background(Circle().frame(width: 60, height: 60).foregroundColor(.gray.opacity(0.3)))
+                }
+                .fullScreenCover(isPresented: $createNewAccount) {
+                    NavigationView {
+                        AddCategoryView(category: Categories.Account)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity)

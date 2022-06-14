@@ -33,7 +33,8 @@ struct InsightsView: View {
                             chart
                             chartTimeFrames
                                 .padding(.top, 15)
-                            Spacer().frame(height: 30)
+                            Spacer()
+                                .frame(height: 30)
                             Divider()
                             weeklyEntries
                         }
@@ -48,10 +49,7 @@ struct InsightsView: View {
                 }
             }
             .onAppear {
-                vm.getAllExpensesForCurrentWeek()
-                vm.groupExpensesEntries()
-                vm.groupIncomesEntries()
-                vm.getExpensesMaximumAmount()
+                refreshView()
             }
         }
     }
@@ -94,7 +92,7 @@ struct InsightsView: View {
     }
     
     func getNavTitle() -> String {
-        return selectedOverviewCategory == .expenses ? "\(vm.getSpendingsAmount()[0]),\(vm.getSpendingsAmount()[1]) zł" : "\(vm.getIncomesAmount()[0]),\(vm.getIncomesAmount()[1]) zł"
+        return selectedOverviewCategory == .expenses ? "\(vm.getExpensesAmount()[0]),\(vm.getExpensesAmount()[1]) zł" : "\(vm.getIncomesAmount()[0]),\(vm.getIncomesAmount()[1]) zł"
     }
     
     var header: some View {
@@ -197,14 +195,20 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text(selectedOverviewCategory == .expenses ? "\(vm.getAverageLine(chartType: vm.getSpendingsAmountDouble()), specifier: "%.2f")" : "\(vm.getAverageLine(chartType: vm.getIncomesAmountDouble()), specifier: "%.2f")")
+                    Text(selectedOverviewCategory == .expenses ? "\(vm.getAverageLine(chartType: vm.getExpensesAmountDouble()), specifier: "%.2f")" : "\(vm.getAverageLine(chartType: vm.getIncomesAmountDouble()), specifier: "%.2f")")
+                        .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximum == 0 ? -13 : -13-((vm.getAverageLine(chartType: vm.getSpendingsAmountDouble())/vm.expensesMaximum)*150) :
+                        vm.expensesMaximum == 0 ? -13 : -13-((vm.getAverageLine(chartType: vm.getExpensesAmountDouble())/vm.expensesMaximum)*150) :
                             vm.incomesMaximum == 0 ? -13 : -13-((vm.getAverageLine(chartType: vm.getIncomesAmountDouble())/vm.incomesMaximum)*150)
                 )
             }
         }
+    }
+    
+    func refreshView() {
+        vm.groupEntries(entryType: .expenses)
+        vm.groupEntries(entryType: .incomes)
     }
 }
 

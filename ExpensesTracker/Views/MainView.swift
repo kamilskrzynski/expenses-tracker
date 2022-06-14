@@ -16,23 +16,19 @@ struct MainView: View {
             ListView()
                 .tabItem {
                     Image(selectedTab == 0 ? "List-Active" : "List")
-                        .resizable()
-                        .frame(width: 1, height: 1)
+                        .tabViewImageStyle()
                 }
                 .tag(0)
             InsightsView()
                 .tabItem {
                 Image(selectedTab == 1 ? "Insights-Active" : "Insights")
-                        .resizable()
-                        .frame(width: 1, height: 1)
+                        .tabViewImageStyle()
             }
                 .tag(1)
             SettingsView()
                 .tabItem {
                     Image(selectedTab == 2 ? "Settings-Active" : "Settings")
-                        .resizable()
-                        .frame(width: 0.01, height: 0.01)
-                        .aspectRatio(contentMode: .fit)
+                        .tabViewImageStyle()
                 }
                 .tag(2)
         }

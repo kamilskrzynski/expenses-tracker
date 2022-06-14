@@ -13,7 +13,9 @@ struct SheetAddButton: View {
     
     var body: some View {
         Button {
-            action
+            DispatchQueue.main.async {
+                action
+            }
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 21, weight: .semibold))
