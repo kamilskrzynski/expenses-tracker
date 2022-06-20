@@ -31,6 +31,10 @@ struct InsightsView: View {
                         VStack(alignment: .leading) {
                             header
                             chart
+                                .onAppear {
+                                    vm.refreshView()
+                                }
+
                             chartTimeFrames
                                 .padding(.top, 15)
                             Spacer()
@@ -48,9 +52,9 @@ struct InsightsView: View {
                     }
                 }
             }
-            .onAppear {
-                refreshView()
-            }
+//            .onAppear {
+//                vm.refreshView()
+//            }
         }
     }
     
@@ -92,16 +96,35 @@ struct InsightsView: View {
     }
     
     func getNavTitle() -> String {
-        return selectedOverviewCategory == .expenses ? "\(vm.getExpensesAmount()[0]),\(vm.getExpensesAmount()[1]) zł" : "\(vm.getIncomesAmount()[0]),\(vm.getIncomesAmount()[1]) zł"
+        return "\(vm.getCurrentAmount(entryType: selectedOverviewCategory == .expenses ? .expenses : .incomes)[0]),\(vm.getCurrentAmount(entryType: selectedOverviewCategory == .expenses ? .expenses : .incomes)[1]) zł"
     }
     
     var header: some View {
         HStack {
-            Text(selectedOverviewCategory == .expenses ? " Total spent this week" : " Total revenue this week")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.secondary)
-            
-            Spacer()
+            switch selectedOverviewCategory {
+            case .expenses:
+                
+                Text(" Total spent this week")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.secondary)
+                Image(systemName: vm.getLastAmountDouble(entryType: .expenses) > vm.getCurrentAmountDouble(entryType: .expenses) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(vm.getLastAmountDouble(entryType: .expenses) > vm.getCurrentAmountDouble(entryType: .expenses) ? .green : .red)
+                Text("\(vm.compare(entryType: .expenses))%")
+                    .foregroundColor(vm.getLastAmountDouble(entryType: .expenses) > vm.getCurrentAmountDouble(entryType: .expenses) ? .green : .red)
+                Spacer()
+            case .incomes:
+                
+                Text(" Total revenue this week")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.secondary)
+                Image(systemName: vm.getLastAmountDouble(entryType: .incomes) < vm.getCurrentAmountDouble(entryType: .incomes) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(vm.getLastAmountDouble(entryType: .incomes) < vm.getCurrentAmountDouble(entryType: .incomes) ? .green : .red)
+                Text("\(vm.compare(entryType: .incomes))%")
+                    .foregroundColor(vm.getLastAmountDouble(entryType: .incomes) < vm.getCurrentAmountDouble(entryType: .incomes) ? .green : .red)
+                Spacer()
+            }
         }
     }
     
@@ -195,12 +218,12 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text(selectedOverviewCategory == .expenses ? "\(vm.getAverageLine(chartType: vm.getExpensesAmountDouble()), specifier: "%.2f")" : "\(vm.getAverageLine(chartType: vm.getIncomesAmountDouble()), specifier: "%.2f")")
+                    Text(selectedOverviewCategory == .expenses ? "\(vm.getAverageLine(chartType: vm.getCurrentAmountDouble(entryType: .expenses)), specifier: "%.2f")" : "\(vm.getAverageLine(chartType: vm.getCurrentAmountDouble(entryType: .incomes)), specifier: "%.2f")")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximum == 0 ? -13 : -13-((vm.getAverageLine(chartType: vm.getExpensesAmountDouble())/vm.expensesMaximum)*150) :
-                            vm.incomesMaximum == 0 ? -13 : -13-((vm.getAverageLine(chartType: vm.getIncomesAmountDouble())/vm.incomesMaximum)*150)
+                        vm.expensesMaximum == 0 ? -13 : -13-((vm.getAverageLine(chartType: vm.getCurrentAmountDouble(entryType: .expenses))/vm.expensesMaximum)*150) :
+                            vm.incomesMaximum == 0 ? -13 : -13-((vm.getAverageLine(chartType: vm.getCurrentAmountDouble(entryType: .incomes))/vm.incomesMaximum)*150)
                 )
             }
         }

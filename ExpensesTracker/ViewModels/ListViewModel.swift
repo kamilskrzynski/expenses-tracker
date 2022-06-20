@@ -38,6 +38,8 @@ final class ListViewModel: ObservableObject {
     @Published var allEntries = [EntryViewModel]()
     @Published var allExpensesForCurrentWeek = [EntryViewModel]()
     @Published var allIncomesForCurrentWeek = [EntryViewModel]()
+    @Published var allExpensesForLastWeek = [EntryViewModel]()
+    @Published var allIncomesForLastWeek = [EntryViewModel]()
     @Published var allEntriesFromDay = [EntryViewModel]()
     @Published var groupedExpensesCategories = [String: [EntryViewModel]]()
     @Published var groupedExpensesCategoriesKeys = [String]()
@@ -50,6 +52,16 @@ final class ListViewModel: ObservableObject {
     @Published var incomesMaximum: Double = 0.0
     @Published var incomesMaximumString: String = ""
     
+    // MARK: RefreshView
+    func refreshView() {
+        getAll(entryType: .expenses)
+        getAll(entryType: .incomes)
+        getAllEntries()
+        getAllForCurrentWeek(entryType: .incomes)
+        getAllForCurrentWeek(entryType: .expenses)
+        getMaximumAmount(entryType: .expenses)
+        getMaximumAmount(entryType: .incomes)
+    }
     
     /// Getting all nessesary things from CoreData
     init() {
@@ -58,6 +70,8 @@ final class ListViewModel: ObservableObject {
         getAll(entryType: .incomes)
         getAllForCurrentWeek(entryType: .expenses)
         getAllForCurrentWeek(entryType: .incomes)
+        getAllForLastWeek(entryType: .expenses)
+        getAllForLastWeek(entryType: .incomes)
         getAllByDay(timePeriod: .week, entryType: .expenses)
         getAllByDay(timePeriod: .week, entryType: .incomes)
         getMaximumAmount(entryType: .expenses)
@@ -76,6 +90,21 @@ final class ListViewModel: ObservableObject {
             
             let currentDateString: String = dateFormatter.string(from: selectedDate)
             return currentDateString
+        }
+    }
+    
+    func compare(entryType: EntryType) -> Int {
+        switch entryType {
+        case .expenses:
+            let currentWeek = getCurrentAmountDouble(entryType: .expenses)
+            let lastWeek = getLastAmountDouble(entryType: .expenses)
+            let percentage = 100 - (currentWeek * 100.0 / lastWeek)
+            return Int(abs(round(percentage)))
+        case .incomes:
+            let currentWeek = getCurrentAmountDouble(entryType: .incomes)
+            let lastWeek = getLastAmountDouble(entryType: .incomes)
+            let percentage = 100 - (currentWeek * 100.0 / lastWeek)
+            return Int(abs(round(percentage)))
         }
     }
     
@@ -136,7 +165,7 @@ final class ListViewModel: ObservableObject {
         }
     }
     
-    // MARK: GetAllForWeek
+    // MARK: GetAllForCurrentWeek
     /// Getting all expenses/income for current week
     func getAllForCurrentWeek(entryType: EntryType) {
         switch entryType {
@@ -149,6 +178,23 @@ final class ListViewModel: ObservableObject {
             let entries = CoreDataManager.shared.getAllForCurrentWeek(entryType: .incomes)
             DispatchQueue.main.async {
                 self.allIncomesForCurrentWeek = entries.map(EntryViewModel.init)
+            }
+        }
+    }
+    
+    // MARK: GetAllForLastWeek
+    /// Getting all expenses/income for current week
+    func getAllForLastWeek(entryType: EntryType) {
+        switch entryType {
+        case .expenses:
+            let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .expenses)
+            DispatchQueue.main.async {
+                self.allExpensesForLastWeek = entries.map(EntryViewModel.init)
+            }
+        case .incomes:
+            let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .incomes)
+            DispatchQueue.main.async {
+                self.allIncomesForLastWeek = entries.map(EntryViewModel.init)
             }
         }
     }
@@ -247,50 +293,66 @@ final class ListViewModel: ObservableObject {
         }
     }
     
-    // MARK: GetAmount -> [String]
+    // MARK: GetCurrentAmount -> [String]
     /// Getting amount of expenses/incomes from whole week as String
-    func getIncomesAmount() -> [String] {
+    func getCurrentAmount(entryType: EntryType) -> [String] {
         
         var total = 0.0
         var totalString = ""
-        for income in allIncomesForCurrentWeek {
-            total += income.amount
+        switch entryType {
+        case .expenses:
+            for expense in allExpensesForCurrentWeek {
+                total += expense.amount
+            }
+            totalString = String(format: "%.2f", total)
+            let stringArray = totalString.components(separatedBy: ".")
+            return stringArray
+        case .incomes:
+            for income in allIncomesForCurrentWeek {
+                total += income.amount
+            }
+            totalString = String(format: "%.2f", total)
+            let stringArray = totalString.components(separatedBy: ".")
+            return stringArray
         }
-        totalString = String(format: "%.2f", total)
-        let stringArray = totalString.components(separatedBy: ".")
-        return stringArray
     }
     
-    func getExpensesAmount() -> [String] {
-        
-        var total = 0.0
-        var totalString = ""
-        for expense in allExpensesForCurrentWeek {
-            total += expense.amount
-        }
-        totalString = String(format: "%.2f", total)
-        let stringArray = totalString.components(separatedBy: ".")
-        return stringArray
-    }
-    
-    // MARK: GetAmount -> Double
+    // MARK: GetCurrentAmount -> Double
     /// Getting amount of expenses/incomes from whole week as Double
-    func getIncomesAmountDouble() -> Double {
+    func getCurrentAmountDouble(entryType: EntryType) -> Double {
         
         var total = 0.0
-        for income in allIncomesForCurrentWeek {
-            total += income.amount
+        switch entryType {
+        case .expenses:
+            for expense in allExpensesForCurrentWeek {
+                total += expense.amount
+            }
+            return total
+        case .incomes:
+            for income in allIncomesForCurrentWeek {
+                total += income.amount
+            }
+            return total
         }
-        return total
     }
-
-    func getExpensesAmountDouble() -> Double {
+    
+    // MARK: GetCurrentAmount -> Double
+    /// Getting amount of expenses/incomes from whole week as Double
+    func getLastAmountDouble(entryType: EntryType) -> Double {
         
         var total = 0.0
-        for expense in allExpensesForCurrentWeek {
-            total += expense.amount
+        switch entryType {
+        case .expenses:
+            for expense in allExpensesForLastWeek {
+                total += expense.amount
+            }
+            return total
+        case .incomes:
+            for income in allIncomesForLastWeek {
+                total += income.amount
+            }
+            return total
         }
-        return total
     }
     
     // MARK: GetAverage

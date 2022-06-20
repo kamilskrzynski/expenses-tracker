@@ -35,7 +35,7 @@ struct ListView: View {
                 }
             }
             .fullScreenCover(isPresented: $isSheetShowed, onDismiss: {
-                refreshView()
+                vm.refreshView()
             }, content: {
                 AddExpenseView()
             })
@@ -86,13 +86,13 @@ struct ListView: View {
                 .foregroundColor(.secondary)
             HStack(spacing: 0) {
                 
-                Text(vm.getExpensesAmount()[0])
+                Text(vm.getCurrentAmount(entryType: .expenses)[0])
                     .foregroundColor(.primary)
                     .font(.system(size: 60, weight: .medium))
                 VStack(alignment: .leading) {
                     HStack {
                         
-                        Text(",\(vm.getExpensesAmount()[1])")
+                        Text(",\(vm.getCurrentAmount(entryType: .expenses)[1])")
                             .foregroundColor(.primary)
                             .font(.system(size: 25, weight: .medium))
                         Text("zł")
@@ -115,16 +115,6 @@ struct ListView: View {
             Spacer()
         }
     }
-    
-    // MARK: RefreshView
-    func refreshView() {
-        vm.getAll(entryType: .expenses)
-        vm.getAll(entryType: .incomes)
-        vm.getAllEntries()
-        vm.getAllForCurrentWeek(entryType: .incomes)
-        vm.getAllForCurrentWeek(entryType: .expenses)
-    }
-    
 }
 
 struct ListView_Previews: PreviewProvider {

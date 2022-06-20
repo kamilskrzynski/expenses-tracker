@@ -60,7 +60,6 @@ class CoreDataManager {
             let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
             let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
             fetchRequest.predicate = datePredicate
-            
             do {
                 return try persistentContainer.viewContext.fetch(fetchRequest)
             } catch {
