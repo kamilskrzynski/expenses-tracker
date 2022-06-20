@@ -13,6 +13,10 @@ enum EntryType {
     case expenses, incomes
 }
 
+enum TimePeriod {
+    case week, month, year
+}
+
 enum Weekday: String, CaseIterable {
     
     case Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
@@ -39,10 +43,10 @@ final class ListViewModel: ObservableObject {
     @Published var groupedExpensesCategoriesKeys = [String]()
     @Published var groupedIncomesCategories = [String: [EntryViewModel]]()
     @Published var groupedIncomesCategoriesKeys = [String]()
-    @Published var expensesChartEntries = [ChartData]()
+    @Published var expensesChartEntries = [WeekChartData]()
     @Published var expensesMaximum: Double = 0.0
     @Published var expensesMaximumString: String = ""
-    @Published var incomesChartEntries = [ChartData]()
+    @Published var incomesChartEntries = [WeekChartData]()
     @Published var incomesMaximum: Double = 0.0
     @Published var incomesMaximumString: String = ""
     
@@ -54,8 +58,8 @@ final class ListViewModel: ObservableObject {
         getAll(entryType: .incomes)
         getAllForCurrentWeek(entryType: .expenses)
         getAllForCurrentWeek(entryType: .incomes)
-        getAllForCurrentWeekByDay(entryType: .expenses)
-        getAllForCurrentWeekByDay(entryType: .incomes)
+        getAllByDay(timePeriod: .week, entryType: .expenses)
+        getAllByDay(timePeriod: .week, entryType: .incomes)
         getMaximumAmount(entryType: .expenses)
         getMaximumAmount(entryType: .incomes)
     }
@@ -137,12 +141,12 @@ final class ListViewModel: ObservableObject {
     func getAllForCurrentWeek(entryType: EntryType) {
         switch entryType {
         case .expenses:
-            let entries = CoreDataManager.shared.getAllExpensesForCurrentWeek()
+            let entries = CoreDataManager.shared.getAllForCurrentWeek(entryType: .expenses)
             DispatchQueue.main.async {
                 self.allExpensesForCurrentWeek = entries.map(EntryViewModel.init)
             }
         case .incomes:
-            let entries = CoreDataManager.shared.getAllIncomesForCurrentWeek()
+            let entries = CoreDataManager.shared.getAllForCurrentWeek(entryType: .incomes)
             DispatchQueue.main.async {
                 self.allIncomesForCurrentWeek = entries.map(EntryViewModel.init)
             }
@@ -151,21 +155,58 @@ final class ListViewModel: ObservableObject {
     
     //MARK: GetAllForWeekByDay
     /// Used to get all expenses/incomes for current week by day
-    func getAllForCurrentWeekByDay(entryType: EntryType) {
-        switch entryType {
-        case .expenses:
-            let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-            for day in days {
-                let entries = CoreDataManager.shared.getAllExpensesForCurrentWeekByDay(dayOfWeek: days.firstIndex(of: day)!)
-                let chartData = ChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                expensesChartEntries.append(chartData)
+    func getAllByDay(timePeriod: TimePeriod, entryType: EntryType) {
+        switch timePeriod {
+        case .week:
+            switch entryType {
+            case .expenses:
+                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                for day in days {
+                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "expense", dayOfWeek: days.firstIndex(of: day)!)
+                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
+                    expensesChartEntries.append(chartData)
+                }
+            case .incomes:
+                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                for day in days {
+                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "income", dayOfWeek: days.firstIndex(of: day)!)
+                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
+                    incomesChartEntries.append(chartData)
+                }
             }
-        case .incomes:
-            let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-            for day in days {
-                let entries = CoreDataManager.shared.getAllIncomesForCurrentWeekByDay(dayOfWeek: days.firstIndex(of: day)!)
-                let chartData = ChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                incomesChartEntries.append(chartData)
+        case .month:
+            switch entryType {
+            case .expenses:
+                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                for day in days {
+                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "expense", dayOfWeek: days.firstIndex(of: day)!)
+                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
+                    expensesChartEntries.append(chartData)
+                }
+            case .incomes:
+                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                for day in days {
+                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "income", dayOfWeek: days.firstIndex(of: day)!)
+                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
+                    incomesChartEntries.append(chartData)
+                }
+            }
+        case .year:
+            switch entryType {
+            case .expenses:
+                let months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"]
+                for month in months {
+                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "expense", dayOfWeek: months.firstIndex(of: month)!)
+                    let chartData = WeekChartData(day: month, amount: entries.map { $0.amount }.reduce(0, +))
+                    expensesChartEntries.append(chartData)
+                }
+            case .incomes:
+                let months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"]
+                for month in months {
+                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "income", dayOfWeek: months.firstIndex(of: month)!)
+                    let chartData = WeekChartData(day: month, amount: entries.map { $0.amount }.reduce(0, +))
+                    incomesChartEntries.append(chartData)
+                }
             }
         }
     }

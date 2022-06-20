@@ -20,6 +20,10 @@ extension Date {
         calendar.date(byAdding: .day, value: 7, to: self.startOfWeek())!
     }
     
+    func startOfLastWeek(using calendar: Calendar = .iso8601) -> Date {
+        calendar.date(byAdding: .day, value: -7, to: self.startOfWeek())!
+    }
+    
     func getNextDays(using calendar: Calendar = .iso8601, dayAmount: Int) -> Date {
         calendar.date(byAdding: .day, value: dayAmount, to: self.startOfWeek())!
     }

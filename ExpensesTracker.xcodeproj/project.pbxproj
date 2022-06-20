@@ -25,7 +25,7 @@
 		377621F528507ECD005180CB /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377621F428507ECD005180CB /* CoreDataManager.swift */; };
 		37CFA244285395FE00B59CA7 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA243285395FE00B59CA7 /* Date+Extensions.swift */; };
 		37CFA2462853967200B59CA7 /* Calendar+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA2452853967200B59CA7 /* Calendar+Extensions.swift */; };
-		37CFA24828579EB500B59CA7 /* ChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA24728579EB500B59CA7 /* ChartData.swift */; };
+		37CFA24828579EB500B59CA7 /* WeekChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA24728579EB500B59CA7 /* WeekChartData.swift */; };
 		37CFA24A2858A8A200B59CA7 /* Image+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA2492858A8A200B59CA7 /* Image+Extensions.swift */; };
 		37CFA24C2858ACB000B59CA7 /* EntriesListRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA24B2858ACB000B59CA7 /* EntriesListRowView.swift */; };
 		37CFA24E2858ADC900B59CA7 /* EntriesListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA24D2858ADC900B59CA7 /* EntriesListHeaderView.swift */; };
@@ -55,7 +55,7 @@
 		377621F428507ECD005180CB /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		37CFA243285395FE00B59CA7 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		37CFA2452853967200B59CA7 /* Calendar+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calendar+Extensions.swift"; sourceTree = "<group>"; };
-		37CFA24728579EB500B59CA7 /* ChartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartData.swift; sourceTree = "<group>"; };
+		37CFA24728579EB500B59CA7 /* WeekChartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekChartData.swift; sourceTree = "<group>"; };
 		37CFA2492858A8A200B59CA7 /* Image+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+Extensions.swift"; sourceTree = "<group>"; };
 		37CFA24B2858ACB000B59CA7 /* EntriesListRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntriesListRowView.swift; sourceTree = "<group>"; };
 		37CFA24D2858ADC900B59CA7 /* EntriesListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntriesListHeaderView.swift; sourceTree = "<group>"; };
@@ -165,7 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				377621EB284F71D6005180CB /* Category.swift */,
-				37CFA24728579EB500B59CA7 /* ChartData.swift */,
+				37CFA24728579EB500B59CA7 /* WeekChartData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -279,7 +279,7 @@
 				375CFAEC284DF05C00B80FA9 /* MainView.swift in Sources */,
 				375CFAFF284E052600B80FA9 /* InsightsView.swift in Sources */,
 				37CFA24A2858A8A200B59CA7 /* Image+Extensions.swift in Sources */,
-				37CFA24828579EB500B59CA7 /* ChartData.swift in Sources */,
+				37CFA24828579EB500B59CA7 /* WeekChartData.swift in Sources */,
 				377621E5284F529A005180CB /* Color+Extensions.swift in Sources */,
 				37F786A42850A1A700B5B720 /* ListViewModel.swift in Sources */,
 				375CFAEA284DF05C00B80FA9 /* ExpensesTrackerApp.swift in Sources */,
