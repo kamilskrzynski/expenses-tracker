@@ -21,11 +21,6 @@ enum Weekday: String, CaseIterable {
     
     case Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
     
-    static var asArray: [Weekday] { return self.allCases }
-    
-    func asInt() -> Int {
-        return Weekday.asArray.firstIndex(of: self)!
-    }
 }
 
 typealias EntryGroup = OrderedDictionary<Date, [EntryViewModel]>
@@ -33,34 +28,79 @@ typealias EntryGroup = OrderedDictionary<Date, [EntryViewModel]>
 
 final class ListViewModel: ObservableObject {
     
+    // MARK: Note
+    /// This mess needs to be cleaned, for now it's just battle ground for testing
+    
     @Published var expenses = [EntryViewModel]()
     @Published var incomes = [EntryViewModel]()
     @Published var allEntries = [EntryViewModel]()
+    
     @Published var allExpensesForCurrentWeek = [EntryViewModel]()
     @Published var allIncomesForCurrentWeek = [EntryViewModel]()
+    
+    @Published var allExpensesForCurrentMonth = [EntryViewModel]()
+    @Published var allIncomesForCurrentMonth = [EntryViewModel]()
+    
+    @Published var allExpensesForCurrentYear = [EntryViewModel]()
+    @Published var allIncomesForCurrentYear = [EntryViewModel]()
+    
     @Published var allExpensesForLastWeek = [EntryViewModel]()
     @Published var allIncomesForLastWeek = [EntryViewModel]()
+    
     @Published var allEntriesFromDay = [EntryViewModel]()
-    @Published var groupedExpensesCategories = [String: [EntryViewModel]]()
-    @Published var groupedExpensesCategoriesKeys = [String]()
-    @Published var groupedIncomesCategories = [String: [EntryViewModel]]()
-    @Published var groupedIncomesCategoriesKeys = [String]()
-    @Published var expensesChartEntries = [WeekChartData]()
-    @Published var expensesMaximum: Double = 0.0
-    @Published var expensesMaximumString: String = ""
-    @Published var incomesChartEntries = [WeekChartData]()
-    @Published var incomesMaximum: Double = 0.0
-    @Published var incomesMaximumString: String = ""
+    
+    @Published var groupedExpensesCategoriesForWeek = [String: [EntryViewModel]]()
+    @Published var groupedExpensesCategoriesKeysForWeek = [String]()
+    @Published var groupedIncomesCategoriesForWeek = [String: [EntryViewModel]]()
+    @Published var groupedIncomesCategoriesKeysForWeek = [String]()
+    
+    
+    @Published var groupedExpensesCategoriesForMonth = [String: [EntryViewModel]]()
+    @Published var groupedExpensesCategoriesKeysForMonth = [String]()
+    @Published var groupedIncomesCategoriesForMonth = [String: [EntryViewModel]]()
+    @Published var groupedIncomesCategoriesKeysForMonth = [String]()
+    
+    @Published var groupedExpensesCategoriesForYear = [String: [EntryViewModel]]()
+    @Published var groupedExpensesCategoriesKeysForYear = [String]()
+    @Published var groupedIncomesCategoriesForYear = [String: [EntryViewModel]]()
+    @Published var groupedIncomesCategoriesKeysForYear = [String]()
+    
+    @Published var expensesWeekly = [WeekChartData]()
+    @Published var incomesWeekly = [WeekChartData]()
+    @Published var expensesMonthly = [MonthChartData]()
+    @Published var incomesMonthly = [MonthChartData]()
+    @Published var expensesYearly = [YearChartData]()
+    @Published var incomesYearly = [YearChartData]()
+    
+    @Published var expensesMaximumForWeek: Double = 0.0
+    @Published var expensesMaximumStringForWeek: String = ""
+    
+    @Published var expensesMaximumForMonth: Double = 0.0
+    @Published var expensesMaximumStringForMonth: String = ""
+    
+    @Published var expensesMaximumForYear: Double = 0.0
+    @Published var expensesMaximumStringForYear: String = ""
+    
+    @Published var incomesMaximumForWeek: Double = 0.0
+    @Published var incomesMaximumStringForWeek: String = ""
+    
+    @Published var incomesMaximumForMonth: Double = 0.0
+    @Published var incomesMaximumStringForMonth: String = ""
+    
+    @Published var incomesMaximumForYear: Double = 0.0
+    @Published var incomesMaximumStringForYear: String = ""
     
     // MARK: RefreshView
     func refreshView() {
         getAll(entryType: .expenses)
         getAll(entryType: .incomes)
         getAllEntries()
-        getAllForCurrentWeek(entryType: .incomes)
-        getAllForCurrentWeek(entryType: .expenses)
-        getMaximumAmount(entryType: .expenses)
-        getMaximumAmount(entryType: .incomes)
+        getAllForCurrent(timePeriod: .week, entryType: .incomes)
+        getAllForCurrent(timePeriod: .week, entryType: .expenses)
+        getMaximumAmountForWeek(entryType: .expenses)
+        getMaximumAmountForWeek(entryType: .incomes)
+        groupEntriesForWeek(entryType: .expenses)
+        groupEntriesForWeek(entryType: .incomes)
     }
     
     /// Getting all nessesary things from CoreData
@@ -68,14 +108,28 @@ final class ListViewModel: ObservableObject {
         getAllEntries()
         getAll(entryType: .expenses)
         getAll(entryType: .incomes)
-        getAllForCurrentWeek(entryType: .expenses)
-        getAllForCurrentWeek(entryType: .incomes)
-        getAllForLastWeek(entryType: .expenses)
-        getAllForLastWeek(entryType: .incomes)
+        getAllForCurrent(timePeriod: .week, entryType: .expenses)
+        getAllForCurrent(timePeriod: .week, entryType: .incomes)
+        getAllForCurrent(timePeriod: .month, entryType: .expenses)
+        getAllForCurrent(timePeriod: .month, entryType: .incomes)
+        getAllForCurrent(timePeriod: .year, entryType: .expenses)
+        getAllForCurrent(timePeriod: .year, entryType: .incomes)
+        getAllForLast(timePeriod: .week, entryType: .expenses)
+        getAllForLast(timePeriod: .week, entryType: .incomes)
         getAllByDay(timePeriod: .week, entryType: .expenses)
         getAllByDay(timePeriod: .week, entryType: .incomes)
-        getMaximumAmount(entryType: .expenses)
-        getMaximumAmount(entryType: .incomes)
+        getAllByDay(timePeriod: .month, entryType: .expenses)
+        getAllByDay(timePeriod: .month, entryType: .incomes)
+        getAllByDay(timePeriod: .year, entryType: .expenses)
+        getAllByDay(timePeriod: .year, entryType: .incomes)
+        getMaximumAmountForWeek(entryType: .expenses)
+        getMaximumAmountForWeek(entryType: .incomes)
+        getMaximumAmountForMonth(entryType: .expenses)
+        getMaximumAmountForMonth(entryType: .incomes)
+        getMaximumAmountForYear(entryType: .expenses)
+        getMaximumAmountForYear(entryType: .incomes)
+        print(expensesYearly)
+        print(allExpensesForCurrentYear)
     }
     
     /// Getting String representation of day
@@ -96,12 +150,18 @@ final class ListViewModel: ObservableObject {
     func compare(entryType: EntryType) -> Int {
         switch entryType {
         case .expenses:
-            let currentWeek = getCurrentAmountDouble(entryType: .expenses)
+            guard getCurrentAmountForWeek(entryType: .expenses) != 0.0 && getLastAmountDouble(entryType: .expenses) != 0.0 else {
+                return 0
+            }
+            let currentWeek = getCurrentAmountForWeek(entryType: .expenses)
             let lastWeek = getLastAmountDouble(entryType: .expenses)
             let percentage = 100 - (currentWeek * 100.0 / lastWeek)
             return Int(abs(round(percentage)))
         case .incomes:
-            let currentWeek = getCurrentAmountDouble(entryType: .incomes)
+            guard getCurrentAmountForWeek(entryType: .incomes) != 0.0 && getLastAmountDouble(entryType: .incomes) != 0.0 else {
+                return 0
+            }
+            let currentWeek = getCurrentAmountForWeek(entryType: .incomes)
             let lastWeek = getLastAmountDouble(entryType: .incomes)
             let percentage = 100 - (currentWeek * 100.0 / lastWeek)
             return Int(abs(round(percentage)))
@@ -110,14 +170,38 @@ final class ListViewModel: ObservableObject {
     
     // MARK: Group Entries
     /// Grouping expenses/incomes
-    func groupEntries(entryType: EntryType) {
+    func groupEntriesForWeek(entryType: EntryType) {
         switch entryType {
         case .expenses:
-            self.groupedExpensesCategories = Dictionary(grouping: self.allExpensesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedExpensesCategoriesKeys = groupedExpensesCategories.map { $0.key }
+            self.groupedExpensesCategoriesForWeek = Dictionary(grouping: self.allExpensesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
+            self.groupedExpensesCategoriesKeysForWeek = groupedExpensesCategoriesForWeek.map { $0.key }
         case .incomes:
-            self.groupedIncomesCategories = Dictionary(grouping: self.allIncomesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedIncomesCategoriesKeys = groupedIncomesCategories
+            self.groupedIncomesCategoriesForWeek = Dictionary(grouping: self.allIncomesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
+            self.groupedIncomesCategoriesKeysForWeek = groupedIncomesCategoriesForWeek
+                .map { $0.key }
+        }
+    }
+    
+    func groupEntriesForMonth(entryType: EntryType) {
+        switch entryType {
+        case .expenses:
+            self.groupedExpensesCategoriesForMonth = Dictionary(grouping: self.allExpensesForCurrentMonth, by: { $0.typeEmoji + "/" + $0.typeName })
+            self.groupedExpensesCategoriesKeysForMonth = groupedExpensesCategoriesForMonth.map { $0.key }
+        case .incomes:
+            self.groupedIncomesCategoriesForMonth = Dictionary(grouping: self.allIncomesForCurrentMonth, by: { $0.typeEmoji + "/" + $0.typeName })
+            self.groupedIncomesCategoriesKeysForMonth = groupedIncomesCategoriesForMonth
+                .map { $0.key }
+        }
+    }
+    
+    func groupEntriesForYear(entryType: EntryType) {
+        switch entryType {
+        case .expenses:
+            self.groupedExpensesCategoriesForYear = Dictionary(grouping: self.allExpensesForCurrentYear, by: { $0.typeEmoji + "/" + $0.typeName })
+            self.groupedExpensesCategoriesKeysForYear = groupedExpensesCategoriesForYear.map { $0.key }
+        case .incomes:
+            self.groupedIncomesCategoriesForYear = Dictionary(grouping: self.allIncomesForCurrentYear, by: { $0.typeEmoji + "/" + $0.typeName })
+            self.groupedIncomesCategoriesKeysForYear = groupedIncomesCategoriesForYear
                 .map { $0.key }
         }
     }
@@ -134,23 +218,67 @@ final class ListViewModel: ObservableObject {
         return dailySpendings
     }
     
-    func countExpensesForCategory(_ category: String) -> Int {
+    func countExpensesForCategoryForWeek(_ category: String) -> Int {
         return self.allExpensesForCurrentWeek.filter { $0.typeName == category }.count
     }
     
-    func countIncomesForCategory(_ category: String) -> Int {
+    func countExpensesForCategoryForMonth(_ category: String) -> Int {
+        return self.allExpensesForCurrentMonth.filter { $0.typeName == category }.count
+    }
+    
+    func countExpensesForCategoryForYear(_ category: String) -> Int {
+        return self.allExpensesForCurrentYear.filter { $0.typeName == category }.count
+    }
+    
+    func countIncomesForCategoryForWeek(_ category: String) -> Int {
         return self.allIncomesForCurrentWeek.filter { $0.typeName == category }.count
     }
     
-    func countExpensesAmountForCategory(_ category: String) -> Double {
+    func countIncomesForCategoryForMonth(_ category: String) -> Int {
+        return self.allIncomesForCurrentMonth.filter { $0.typeName == category }.count
+    }
+    
+    func countIncomesForCategoryForYear(_ category: String) -> Int {
+        return self.allIncomesForCurrentYear.filter { $0.typeName == category }.count
+    }
+    
+    func countExpensesAmountForCategoryForWeek(_ category: String) -> Double {
         return self.allExpensesForCurrentWeek
             .filter { $0.typeName == category }
             .map { $0.amount }
             .reduce(0, +)
     }
     
-    func countIncomesAmountForCategory(_ category: String) -> Double {
+    func countExpensesAmountForCategoryForMonth(_ category: String) -> Double {
+        return self.allExpensesForCurrentMonth
+            .filter { $0.typeName == category }
+            .map { $0.amount }
+            .reduce(0, +)
+    }
+    
+    func countExpensesAmountForCategoryForYear(_ category: String) -> Double {
+        return self.allExpensesForCurrentYear
+            .filter { $0.typeName == category }
+            .map { $0.amount }
+            .reduce(0, +)
+    }
+    
+    func countIncomesAmountForCategoryForWeek(_ category: String) -> Double {
         return self.allIncomesForCurrentWeek
+            .filter { $0.typeName == category }
+            .map { $0.amount }
+            .reduce(0, +)
+    }
+    
+    func countIncomesAmountForCategoryForMonth(_ category: String) -> Double {
+        return self.allIncomesForCurrentMonth
+            .filter { $0.typeName == category }
+            .map { $0.amount }
+            .reduce(0, +)
+    }
+    
+    func countIncomesAmountForCategoryForYear(_ category: String) -> Double {
+        return self.allIncomesForCurrentYear
             .filter { $0.typeName == category }
             .map { $0.amount }
             .reduce(0, +)
@@ -166,35 +294,93 @@ final class ListViewModel: ObservableObject {
     }
     
     // MARK: GetAllForCurrentWeek
-    /// Getting all expenses/income for current week
-    func getAllForCurrentWeek(entryType: EntryType) {
-        switch entryType {
-        case .expenses:
-            let entries = CoreDataManager.shared.getAllForCurrentWeek(entryType: .expenses)
-            DispatchQueue.main.async {
-                self.allExpensesForCurrentWeek = entries.map(EntryViewModel.init)
+    /// Getting all expenses/income for current week/month/year
+    func getAllForCurrent(timePeriod: TimePeriod, entryType: EntryType) {
+        switch timePeriod {
+        case .week:
+            switch entryType {
+            case .expenses:
+                let entries = CoreDataManager.shared.getAllForCurrentWeek(entryType: .expenses)
+                DispatchQueue.main.async {
+                    self.allExpensesForCurrentWeek = entries.map(EntryViewModel.init)
+                }
+            case .incomes:
+                let entries = CoreDataManager.shared.getAllForCurrentWeek(entryType: .incomes)
+                DispatchQueue.main.async {
+                    self.allIncomesForCurrentWeek = entries.map(EntryViewModel.init)
+                }
             }
-        case .incomes:
-            let entries = CoreDataManager.shared.getAllForCurrentWeek(entryType: .incomes)
-            DispatchQueue.main.async {
-                self.allIncomesForCurrentWeek = entries.map(EntryViewModel.init)
+        case .month:
+            switch entryType {
+            case .expenses:
+                let entries = CoreDataManager.shared.getAllForCurrentMonth(entryType: .expenses)
+                DispatchQueue.main.async {
+                    self.allExpensesForCurrentMonth = entries.map(EntryViewModel.init)
+                }
+            case .incomes:
+                let entries = CoreDataManager.shared.getAllForCurrentMonth(entryType: .incomes)
+                DispatchQueue.main.async {
+                    self.allIncomesForCurrentMonth = entries.map(EntryViewModel.init)
+                }
+            }
+        case .year:
+            switch entryType {
+            case .expenses:
+                let entries = CoreDataManager.shared.getAllForCurrentYear(entryType: .expenses)
+                DispatchQueue.main.async {
+                    self.allExpensesForCurrentYear = entries.map(EntryViewModel.init)
+                }
+            case .incomes:
+                let entries = CoreDataManager.shared.getAllForCurrentYear(entryType: .incomes)
+                DispatchQueue.main.async {
+                    self.allExpensesForCurrentYear = entries.map(EntryViewModel.init)
+                }
             }
         }
     }
     
     // MARK: GetAllForLastWeek
-    /// Getting all expenses/income for current week
-    func getAllForLastWeek(entryType: EntryType) {
-        switch entryType {
-        case .expenses:
-            let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .expenses)
-            DispatchQueue.main.async {
-                self.allExpensesForLastWeek = entries.map(EntryViewModel.init)
+    /// Getting all expenses/income for last week/month/year
+    func getAllForLast(timePeriod: TimePeriod, entryType: EntryType) {
+        switch timePeriod {
+        case .week:
+            switch entryType {
+            case .expenses:
+                let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .expenses)
+                DispatchQueue.main.async {
+                    self.allExpensesForLastWeek = entries.map(EntryViewModel.init)
+                }
+            case .incomes:
+                let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .incomes)
+                DispatchQueue.main.async {
+                    self.allIncomesForLastWeek = entries.map(EntryViewModel.init)
+                }
             }
-        case .incomes:
-            let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .incomes)
-            DispatchQueue.main.async {
-                self.allIncomesForLastWeek = entries.map(EntryViewModel.init)
+        case .month:
+            switch entryType {
+            case .expenses:
+                let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .expenses)
+                DispatchQueue.main.async {
+                    self.allExpensesForLastWeek = entries.map(EntryViewModel.init)
+                }
+            case .incomes:
+                let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .incomes)
+                DispatchQueue.main.async {
+                    self.allIncomesForLastWeek = entries.map(EntryViewModel.init)
+                }
+            }
+        case .year:
+            switch entryType {
+            case .expenses:
+                let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .expenses)
+                DispatchQueue.main.async {
+                    self.allExpensesForLastWeek = entries.map(EntryViewModel.init)
+                }
+            case .incomes:
+                let entries = CoreDataManager.shared.getAllForLastWeek(entryType: .incomes)
+                DispatchQueue.main.async {
+                    self.allIncomesForLastWeek = entries.map(EntryViewModel.init)
+                }
             }
         }
     }
@@ -202,56 +388,55 @@ final class ListViewModel: ObservableObject {
     //MARK: GetAllForWeekByDay
     /// Used to get all expenses/incomes for current week by day
     func getAllByDay(timePeriod: TimePeriod, entryType: EntryType) {
+        
+        let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        let daysOfMonth = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
+        let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        
         switch timePeriod {
         case .week:
             switch entryType {
             case .expenses:
-                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
                 for day in days {
                     let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "expense", dayOfWeek: days.firstIndex(of: day)!)
                     let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    expensesChartEntries.append(chartData)
+                    expensesWeekly.append(chartData)
                 }
             case .incomes:
-                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
                 for day in days {
                     let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "income", dayOfWeek: days.firstIndex(of: day)!)
                     let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    incomesChartEntries.append(chartData)
+                    incomesWeekly.append(chartData)
                 }
             }
         case .month:
             switch entryType {
             case .expenses:
-                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-                for day in days {
-                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "expense", dayOfWeek: days.firstIndex(of: day)!)
-                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    expensesChartEntries.append(chartData)
+                for day in daysOfMonth {
+                    let entries = CoreDataManager.shared.getAllForCurrentMonthByDay(entryType: "expense", dayOfMonth: daysOfMonth.firstIndex(of: day)!)
+                    let chartData = MonthChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
+                    expensesMonthly.append(chartData)
                 }
             case .incomes:
-                let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-                for day in days {
-                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "income", dayOfWeek: days.firstIndex(of: day)!)
-                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    incomesChartEntries.append(chartData)
+                for day in daysOfMonth {
+                    let entries = CoreDataManager.shared.getAllForCurrentMonthByDay(entryType: "income", dayOfMonth: daysOfMonth.firstIndex(of: day)!)
+                    let chartData = MonthChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
+                    incomesMonthly.append(chartData)
                 }
             }
         case .year:
             switch entryType {
             case .expenses:
-                let months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"]
                 for month in months {
-                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "expense", dayOfWeek: months.firstIndex(of: month)!)
-                    let chartData = WeekChartData(day: month, amount: entries.map { $0.amount }.reduce(0, +))
-                    expensesChartEntries.append(chartData)
+                    let entries = CoreDataManager.shared.getAllForCurrentYearByMonth(entryType: "expense", monthOfYear: months.firstIndex(of: month)!)
+                    let chartData = YearChartData(month: month, amount: entries.map { $0.amount }.reduce(0, +))
+                    expensesYearly.append(chartData)
                 }
             case .incomes:
-                let months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"]
                 for month in months {
-                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "income", dayOfWeek: months.firstIndex(of: month)!)
-                    let chartData = WeekChartData(day: month, amount: entries.map { $0.amount }.reduce(0, +))
-                    incomesChartEntries.append(chartData)
+                    let entries = CoreDataManager.shared.getAllForCurrentYearByMonth(entryType: "income", monthOfYear: months.firstIndex(of: month)!)
+                    let chartData = YearChartData(month: month, amount: entries.map { $0.amount }.reduce(0, +))
+                    incomesYearly.append(chartData)
                 }
             }
         }
@@ -259,20 +444,54 @@ final class ListViewModel: ObservableObject {
     
     // MARK: GetMaximum
     /// Used to get maximum amount of expense/income for Chart
-    func getMaximumAmount(entryType: EntryType) {
+    func getMaximumAmountForWeek(entryType: EntryType) {
         switch entryType {
         case .expenses:
-            let maxValue = self.expensesChartEntries.max(by: {(chartData1, chartData2)-> Bool in
+            let maxValue = self.expensesWeekly.max(by: {(chartData1, chartData2)-> Bool in
                 return chartData1.amount < chartData2.amount
             })
-            self.expensesMaximum = maxValue?.amount ?? 0
-            self.expensesMaximumString = String(format: "%.2f", expensesMaximum)
+            self.expensesMaximumForWeek = maxValue?.amount ?? 0
+            self.expensesMaximumStringForWeek = String(format: "%.2f", expensesMaximumForWeek)
         case .incomes:
-            let maxValue = self.incomesChartEntries.max(by: {(chartData1, chartData2)-> Bool in
+            let maxValue = self.incomesWeekly.max(by: {(chartData1, chartData2)-> Bool in
                 return chartData1.amount < chartData2.amount
             })
-            self.incomesMaximum = maxValue?.amount ?? 0
-            self.incomesMaximumString = String(format: "%.2f", incomesMaximum)
+            self.incomesMaximumForWeek = maxValue?.amount ?? 0
+            self.incomesMaximumStringForWeek = String(format: "%.2f", incomesMaximumForWeek)
+        }
+    }
+    
+    func getMaximumAmountForMonth(entryType: EntryType) {
+        switch entryType {
+        case .expenses:
+            let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2)-> Bool in
+                return chartData1.amount < chartData2.amount
+            })
+            self.expensesMaximumForMonth = maxValue?.amount ?? 0
+            self.expensesMaximumStringForMonth = String(format: "%.2f", expensesMaximumForMonth)
+        case .incomes:
+            let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2)-> Bool in
+                return chartData1.amount < chartData2.amount
+            })
+            self.incomesMaximumForMonth = maxValue?.amount ?? 0
+            self.incomesMaximumStringForMonth = String(format: "%.2f", incomesMaximumForMonth)
+        }
+    }
+    
+    func getMaximumAmountForYear(entryType: EntryType) {
+        switch entryType {
+        case .expenses:
+            let maxValue = self.expensesYearly.max(by: {(chartData1, chartData2)-> Bool in
+                return chartData1.amount < chartData2.amount
+            })
+            self.expensesMaximumForYear = maxValue?.amount ?? 0
+            self.expensesMaximumStringForYear = String(format: "%.2f", expensesMaximumForYear)
+        case .incomes:
+            let maxValue = self.incomesYearly.max(by: {(chartData1, chartData2)-> Bool in
+                return chartData1.amount < chartData2.amount
+            })
+            self.incomesMaximumForYear = maxValue?.amount ?? 0
+            self.incomesMaximumStringForYear = String(format: "%.2f", incomesMaximumForYear)
         }
     }
     
@@ -319,7 +538,7 @@ final class ListViewModel: ObservableObject {
     
     // MARK: GetCurrentAmount -> Double
     /// Getting amount of expenses/incomes from whole week as Double
-    func getCurrentAmountDouble(entryType: EntryType) -> Double {
+    func getCurrentAmountForWeek(entryType: EntryType) -> Double {
         
         var total = 0.0
         switch entryType {
@@ -330,6 +549,40 @@ final class ListViewModel: ObservableObject {
             return total
         case .incomes:
             for income in allIncomesForCurrentWeek {
+                total += income.amount
+            }
+            return total
+        }
+    }
+    
+    func getCurrentAmountForMonth(entryType: EntryType) -> Double {
+        
+        var total = 0.0
+        switch entryType {
+        case .expenses:
+            for expense in allExpensesForCurrentMonth {
+                total += expense.amount
+            }
+            return total
+        case .incomes:
+            for income in allIncomesForCurrentMonth {
+                total += income.amount
+            }
+            return total
+        }
+    }
+    
+    func getCurrentAmountForYear(entryType: EntryType) -> Double {
+        
+        var total = 0.0
+        switch entryType {
+        case .expenses:
+            for expense in allExpensesForCurrentYear {
+                total += expense.amount
+            }
+            return total
+        case .incomes:
+            for income in allIncomesForCurrentYear {
                 total += income.amount
             }
             return total
@@ -357,9 +610,17 @@ final class ListViewModel: ObservableObject {
     
     // MARK: GetAverage
     /// Used to get average amount of expenses/incomes from whole week
-    func getAverageLine(chartType: Double) -> Double {
+    func getAverageLineForWeek(chartType: Double) -> Double {
         
         return chartType/Double(Date().dayNumberOfWeek()!)
+    }
+    
+    func getAverageLineForMonth(chartType: Double) -> Double {
+        return chartType/Double(Date().dayNumberOfMonth()!)
+    }
+    
+    func getAverageLineForYear(chartType: Double) -> Double {
+        return chartType/Double(Date().monthNumberOfYear()!)
     }
     
     /// Grouping entries to better representate data in ListView
