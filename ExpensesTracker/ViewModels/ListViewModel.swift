@@ -540,7 +540,7 @@ final class ListViewModel: ObservableObject {
     /// Getting amount of expenses/incomes from whole week as Double
     func getCurrentAmountForWeek(entryType: EntryType) -> Double {
         
-        var total = 0.0
+        var total = 0.00
         switch entryType {
         case .expenses:
             for expense in allExpensesForCurrentWeek {
@@ -557,7 +557,7 @@ final class ListViewModel: ObservableObject {
     
     func getCurrentAmountForMonth(entryType: EntryType) -> Double {
         
-        var total = 0.0
+        var total = 0.00
         switch entryType {
         case .expenses:
             for expense in allExpensesForCurrentMonth {
@@ -574,7 +574,7 @@ final class ListViewModel: ObservableObject {
     
     func getCurrentAmountForYear(entryType: EntryType) -> Double {
         
-        var total = 0.0
+        var total = 0.00
         switch entryType {
         case .expenses:
             for expense in allExpensesForCurrentYear {

@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-enum SelectedOverviewCategory {
-    case expenses, incomes
-}
-
 enum TimeFrameSelection: String, CaseIterable {
     case Week, Month, Year
 }
@@ -18,7 +14,7 @@ enum TimeFrameSelection: String, CaseIterable {
 struct InsightsView: View {
     
     @StateObject private var vm = ListViewModel()
-    @State private var selectedOverviewCategory: SelectedOverviewCategory = .expenses
+    @State private var selectedOverviewCategory: EntryType = .expenses
     @State private var timeSelection: TimeFrameSelection = .Week
     
     var body: some View {
@@ -38,11 +34,11 @@ struct InsightsView: View {
                             case .Year:
                                 yearChart
                             }
-
+                            
                             chartTimeFrames
                                 .onAppear {
-                                vm.refreshView()
-                            }
+                                    vm.refreshView()
+                                }
                                 .padding(.top, 15)
                             Spacer()
                                 .frame(height: 30)
@@ -139,7 +135,7 @@ struct InsightsView: View {
         }
         .listRowBackground(Color.clear)
     }
-
+    
     
     var yearlyEntries: some View {
         ForEach(selectedOverviewCategory == .expenses ? vm.groupedExpensesCategoriesKeysForYear : vm.groupedIncomesCategoriesKeysForYear, id: \.self) { key in
@@ -168,10 +164,17 @@ struct InsightsView: View {
         }
         .listRowBackground(Color.clear)
     }
-
+    
     
     func getNavTitle() -> String {
-        return "\(vm.getCurrentAmount(entryType: selectedOverviewCategory == .expenses ? .expenses : .incomes)[0]),\(vm.getCurrentAmount(entryType: selectedOverviewCategory == .expenses ? .expenses : .incomes)[1]) zł"
+        switch timeSelection {
+        case .Week:
+            return "\(vm.getCurrentAmountForWeek(entryType: selectedOverviewCategory)) zł"
+        case .Month:
+            return "\(vm.getCurrentAmountForMonth(entryType: selectedOverviewCategory)) zł"
+        case .Year:
+            return "\(vm.getCurrentAmountForYear(entryType: selectedOverviewCategory)) zł"
+        }
     }
     
     var header: some View {
@@ -179,7 +182,7 @@ struct InsightsView: View {
             switch selectedOverviewCategory {
             case .expenses:
                 
-                Text(" Total spent this week")
+                Text(" Total spent this \(timeSelection.rawValue.lowercased())")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.secondary)
                 Image(systemName: vm.getLastAmountDouble(entryType: .expenses) > vm.getCurrentAmountForWeek(entryType: .expenses) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
@@ -191,7 +194,7 @@ struct InsightsView: View {
                 Spacer()
             case .incomes:
                 
-                Text(" Total revenue this week")
+                Text(" Total revenue this \(timeSelection.rawValue.lowercased())")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.secondary)
                 Image(systemName: vm.getLastAmountDouble(entryType: .incomes) < vm.getCurrentAmountForWeek(entryType: .incomes) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
@@ -295,7 +298,7 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text(selectedOverviewCategory == .expenses ? "\(vm.getAverageLineForWeek(chartType: vm.getCurrentAmountForWeek(entryType: .expenses)), specifier: "%.2f")" : "\(vm.getAverageLineForWeek(chartType: vm.getCurrentAmountForWeek(entryType: .incomes)), specifier: "%.2f")")
+                    Text("\(vm.getAverageLineForWeek(chartType: vm.getCurrentAmountForWeek(entryType: selectedOverviewCategory)), specifier: "%.2f")")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?
@@ -357,7 +360,7 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text(selectedOverviewCategory == .expenses ? "\(vm.getAverageLineForMonth(chartType: vm.getCurrentAmountForMonth(entryType: .expenses)), specifier: "%.2f")" : "\(vm.getAverageLineForMonth(chartType: vm.getCurrentAmountForMonth(entryType: .incomes)), specifier: "%.2f")")
+                    Text("\(vm.getAverageLineForMonth(chartType: vm.getCurrentAmountForMonth(entryType: selectedOverviewCategory)), specifier: "%.2f")")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?
@@ -408,7 +411,7 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text(selectedOverviewCategory == .expenses ? "\(vm.getAverageLineForYear(chartType: vm.getCurrentAmountForYear(entryType: .expenses)), specifier: "%.2f")" : "\(vm.getAverageLineForYear(chartType: vm.getCurrentAmountForYear(entryType: .incomes)), specifier: "%.2f")")
+                    Text("\(vm.getAverageLineForYear(chartType: vm.getCurrentAmountForYear(entryType: selectedOverviewCategory)), specifier: "%.2f")")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?

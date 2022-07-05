@@ -18,6 +18,7 @@ class CategoriesViewModel: ObservableObject {
     @Published var categoryName: String = ""
     @Published var selectedDate = Date()
     @Published var amount: String = "0"
+    @Published var showedAmount: String = "0"
     @Published var account: String = ""
     @Published var accountTypeButtonClicked: Bool = false
     @Published var expenseTypeButtonClicked: Bool = false
@@ -47,6 +48,7 @@ class CategoriesViewModel: ObservableObject {
         let manager = CoreDataManager.shared
         let entry = Entry(context: manager.persistentContainer.viewContext)
         
+        print(Double(amount))
         entry.type = selectedType
         entry.typeName = selectedExpense.name
         entry.typeEmoji = selectedExpense.emoji
@@ -167,15 +169,23 @@ class CategoriesViewModel: ObservableObject {
         case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
             if amount == "0" {
                 amount = button.rawValue
+                showedAmount = button.rawValue
+                print(amount)
             } else {
                 amount = amount + button.rawValue
+                showedAmount = showedAmount + button.rawValue
+                print(amount)
             }
         case .comma:
-            amount = amount + button.rawValue
+            amount = amount + "."
+            showedAmount = showedAmount + button.rawValue
+            print(amount)
         case .backspace:
             amount.removeLast()
+            showedAmount.removeLast()
             if amount.isEmpty {
                 amount = "0"
+                showedAmount = "0"
             }
         }
     }

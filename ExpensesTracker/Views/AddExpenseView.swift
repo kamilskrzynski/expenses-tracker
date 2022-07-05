@@ -206,7 +206,7 @@ struct AddExpenseView: View {
     // MARK: Header
     var header: some View {
         HStack {
-            Text(vm.amount)
+            Text(vm.showedAmount)
                 .foregroundColor(.primary)
                 .font(.system(size: 80, weight: .regular))
             VStack {
