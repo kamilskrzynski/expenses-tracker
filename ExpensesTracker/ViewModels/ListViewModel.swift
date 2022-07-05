@@ -59,24 +59,9 @@ final class ListViewModel: ObservableObject {
     @Published var expensesYearly = [YearChartData]()
     @Published var incomesYearly = [YearChartData]()
     
-    @Published var expensesMaximumForWeek: Double = 0.0
-    @Published var expensesMaximumStringForWeek: String = ""
-    
-    @Published var expensesMaximumForMonth: Double = 0.0
-    @Published var expensesMaximumStringForMonth: String = ""
-    
-    @Published var expensesMaximumForYear: Double = 0.0
-    @Published var expensesMaximumStringForYear: String = ""
-    
-    @Published var incomesMaximumForWeek: Double = 0.0
-    @Published var incomesMaximumStringForWeek: String = ""
-    
-    @Published var incomesMaximumForMonth: Double = 0.0
-    @Published var incomesMaximumStringForMonth: String = ""
-    
-    @Published var incomesMaximumForYear: Double = 0.0
-    @Published var incomesMaximumStringForYear: String = ""
-    
+    @Published var maximumValue: Double = 0.0
+    @Published var maximumValueAsString: String = ""
+
     // MARK: RefreshView
     func refreshView() {
         getAll(entryType: .expenses)
@@ -196,70 +181,56 @@ final class ListViewModel: ObservableObject {
         return dailySpendings
     }
     
-    func countExpensesForCategoryForWeek(_ category: String) -> Int {
-        return self.allExpensesForCurrentWeek.filter { $0.typeName == category }.count
+    func countExpensesForCategory(_ time: TimePeriod, _ entryType: EntryType, _ category: String) -> Int {
+        switch (time, entryType) {
+        case (.week, .expenses):
+            return self.allExpensesForCurrentWeek.filter { $0.typeName == category }.count
+        case (.week, .incomes):
+            return self.allIncomesForCurrentWeek.filter { $0.typeName == category }.count
+        case (.month, .expenses):
+            return self.allExpensesForCurrentMonth.filter { $0.typeName == category }.count
+        case (.month, .incomes):
+            return self.allIncomesForCurrentMonth.filter { $0.typeName == category }.count
+        case (.year, .expenses):
+            return self.allExpensesForCurrentYear.filter { $0.typeName == category }.count
+        case (.year, .incomes):
+            return self.allIncomesForCurrentYear.filter { $0.typeName == category }.count
+        }
     }
     
-    func countExpensesForCategoryForMonth(_ category: String) -> Int {
-        return self.allExpensesForCurrentMonth.filter { $0.typeName == category }.count
-    }
-    
-    func countExpensesForCategoryForYear(_ category: String) -> Int {
-        return self.allExpensesForCurrentYear.filter { $0.typeName == category }.count
-    }
-    
-    func countIncomesForCategoryForWeek(_ category: String) -> Int {
-        return self.allIncomesForCurrentWeek.filter { $0.typeName == category }.count
-    }
-    
-    func countIncomesForCategoryForMonth(_ category: String) -> Int {
-        return self.allIncomesForCurrentMonth.filter { $0.typeName == category }.count
-    }
-    
-    func countIncomesForCategoryForYear(_ category: String) -> Int {
-        return self.allIncomesForCurrentYear.filter { $0.typeName == category }.count
-    }
-    
-    func countExpensesAmountForCategoryForWeek(_ category: String) -> Double {
-        return self.allExpensesForCurrentWeek
-            .filter { $0.typeName == category }
-            .map { $0.amount }
-            .reduce(0, +)
-    }
-    
-    func countExpensesAmountForCategoryForMonth(_ category: String) -> Double {
-        return self.allExpensesForCurrentMonth
-            .filter { $0.typeName == category }
-            .map { $0.amount }
-            .reduce(0, +)
-    }
-    
-    func countExpensesAmountForCategoryForYear(_ category: String) -> Double {
-        return self.allExpensesForCurrentYear
-            .filter { $0.typeName == category }
-            .map { $0.amount }
-            .reduce(0, +)
-    }
-    
-    func countIncomesAmountForCategoryForWeek(_ category: String) -> Double {
-        return self.allIncomesForCurrentWeek
-            .filter { $0.typeName == category }
-            .map { $0.amount }
-            .reduce(0, +)
-    }
-    
-    func countIncomesAmountForCategoryForMonth(_ category: String) -> Double {
-        return self.allIncomesForCurrentMonth
-            .filter { $0.typeName == category }
-            .map { $0.amount }
-            .reduce(0, +)
-    }
-    
-    func countIncomesAmountForCategoryForYear(_ category: String) -> Double {
-        return self.allIncomesForCurrentYear
-            .filter { $0.typeName == category }
-            .map { $0.amount }
-            .reduce(0, +)
+    func countExpensesAmountForCategory(_ time: TimePeriod, _ entryType: EntryType, _ category: String) -> Double {
+        switch (time, entryType) {
+        case (.week, .expenses):
+            return self.allExpensesForCurrentWeek
+                .filter { $0.typeName == category }
+                .map { $0.amount }
+                .reduce(0, +)
+        case (.week, .incomes):
+            return self.allIncomesForCurrentWeek
+                .filter { $0.typeName == category }
+                .map { $0.amount }
+                .reduce(0, +)
+        case (.month, .expenses):
+            return self.allExpensesForCurrentMonth
+                .filter { $0.typeName == category }
+                .map { $0.amount }
+                .reduce(0, +)
+        case (.month, .incomes):
+            return self.allIncomesForCurrentMonth
+                .filter { $0.typeName == category }
+                .map { $0.amount }
+                .reduce(0, +)
+        case (.year, .expenses):
+            return self.allExpensesForCurrentYear
+                .filter { $0.typeName == category }
+                .map { $0.amount }
+                .reduce(0, +)
+        case (.year, .incomes):
+            return self.allIncomesForCurrentYear
+                .filter { $0.typeName == category }
+                .map { $0.amount }
+                .reduce(0, +)
+        }
     }
     
     /// Getting all entries
@@ -442,14 +413,14 @@ final class ListViewModel: ObservableObject {
                 let maxValue = self.expensesWeekly.max(by: {(chartData1, chartData2)-> Bool in
                     return chartData1.amount < chartData2.amount
                 })
-                self.expensesMaximumForWeek = maxValue?.amount ?? 0
-                self.expensesMaximumStringForWeek = String(format: "%.2f", expensesMaximumForWeek)
+                self.maximumValue = maxValue?.amount ?? 0
+                self.maximumValueAsString = String(format: "%.2f", maximumValue)
             case .incomes:
                 let maxValue = self.incomesWeekly.max(by: {(chartData1, chartData2)-> Bool in
                     return chartData1.amount < chartData2.amount
                 })
-                self.incomesMaximumForWeek = maxValue?.amount ?? 0
-                self.incomesMaximumStringForWeek = String(format: "%.2f", incomesMaximumForWeek)
+                self.maximumValue = maxValue?.amount ?? 0
+                self.maximumValueAsString = String(format: "%.2f", maximumValue)
             }
         case .month:
             switch entryType {
@@ -457,14 +428,14 @@ final class ListViewModel: ObservableObject {
                 let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2)-> Bool in
                     return chartData1.amount < chartData2.amount
                 })
-                self.expensesMaximumForMonth = maxValue?.amount ?? 0
-                self.expensesMaximumStringForMonth = String(format: "%.2f", expensesMaximumForMonth)
+                self.maximumValue = maxValue?.amount ?? 0
+                self.maximumValueAsString = String(format: "%.2f", maximumValue)
             case .incomes:
                 let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2)-> Bool in
                     return chartData1.amount < chartData2.amount
                 })
-                self.incomesMaximumForMonth = maxValue?.amount ?? 0
-                self.incomesMaximumStringForMonth = String(format: "%.2f", incomesMaximumForMonth)
+                self.maximumValue = maxValue?.amount ?? 0
+                self.maximumValueAsString = String(format: "%.2f", maximumValue)
             }
         case .year:
             switch entryType {
@@ -472,14 +443,14 @@ final class ListViewModel: ObservableObject {
                 let maxValue = self.expensesYearly.max(by: {(chartData1, chartData2)-> Bool in
                     return chartData1.amount < chartData2.amount
                 })
-                self.expensesMaximumForYear = maxValue?.amount ?? 0
-                self.expensesMaximumStringForYear = String(format: "%.2f", expensesMaximumForYear)
+                self.maximumValue = maxValue?.amount ?? 0
+                self.maximumValueAsString = String(format: "%.2f", maximumValue)
             case .incomes:
                 let maxValue = self.incomesYearly.max(by: {(chartData1, chartData2)-> Bool in
                     return chartData1.amount < chartData2.amount
                 })
-                self.incomesMaximumForYear = maxValue?.amount ?? 0
-                self.incomesMaximumStringForYear = String(format: "%.2f", incomesMaximumForYear)
+                self.maximumValue = maxValue?.amount ?? 0
+                self.maximumValueAsString = String(format: "%.2f", maximumValue)
             }
         }
     }
@@ -596,19 +567,17 @@ final class ListViewModel: ObservableObject {
     
     // MARK: GetAverage
     /// Used to get average amount of expenses/incomes from whole week
-    func getAverageLineForWeek(chartType: Double) -> Double {
-        
-        return chartType/Double(Date().dayNumberOfWeek()!)
+    func getAverageLine(_ time: TimePeriod, _ chartType: Double) -> Double {
+        switch time {
+        case .week:
+            return chartType/Double(Date().dayNumberOfWeek()!)
+        case .month:
+            return chartType/Double(Date().dayNumberOfMonth()!)
+        case .year:
+            return chartType/Double(Date().monthNumberOfYear()!)
+        }
     }
-    
-    func getAverageLineForMonth(chartType: Double) -> Double {
-        return chartType/Double(Date().dayNumberOfMonth()!)
-    }
-    
-    func getAverageLineForYear(chartType: Double) -> Double {
-        return chartType/Double(Date().monthNumberOfYear()!)
-    }
-    
+
     /// Grouping entries to better representate data in ListView
     func groupEntryByDay() -> EntryGroup {
         

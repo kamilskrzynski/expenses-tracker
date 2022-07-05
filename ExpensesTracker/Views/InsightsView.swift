@@ -87,11 +87,11 @@ struct InsightsView: View {
                     HStack {
                         Text(keyValues[1])
                             .font(.system(size: 18, weight: .medium))
-                        Text(selectedOverviewCategory == .expenses ? "x\(vm.countExpensesForCategoryForWeek(keyValues[1]))" : "x\(vm.countIncomesForCategoryForWeek(keyValues[1]))")
+                        Text("x\(vm.countExpensesForCategory(.week, selectedOverviewCategory, keyValues[1]))")
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.secondary)
                         Spacer()
-                        Text(selectedOverviewCategory == .expenses ? "\(vm.countExpensesAmountForCategoryForWeek(keyValues[1]), format: .currency(code: "PLN"))" : "\(vm.countIncomesAmountForCategoryForWeek(keyValues[1]), format: .currency(code: "PLN"))")
+                        Text("\(vm.countExpensesAmountForCategory(.week, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundColor(.primary)
                     }
@@ -115,11 +115,11 @@ struct InsightsView: View {
                     HStack {
                         Text(keyValues[1])
                             .font(.system(size: 18, weight: .medium))
-                        Text(selectedOverviewCategory == .expenses ? "x\(vm.countExpensesForCategoryForMonth(keyValues[1]))" : "x\(vm.countIncomesForCategoryForMonth(keyValues[1]))")
+                        Text("x\(vm.countExpensesForCategory(.month, selectedOverviewCategory, keyValues[1]))")
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.secondary)
                         Spacer()
-                        Text(selectedOverviewCategory == .expenses ? "\(vm.countExpensesAmountForCategoryForMonth(keyValues[1]), format: .currency(code: "PLN"))" : "\(vm.countIncomesAmountForCategoryForMonth(keyValues[1]), format: .currency(code: "PLN"))")
+                        Text("\(vm.countExpensesAmountForCategory(.month, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundColor(.primary)
                     }
@@ -144,11 +144,11 @@ struct InsightsView: View {
                     HStack {
                         Text(keyValues[1])
                             .font(.system(size: 18, weight: .medium))
-                        Text(selectedOverviewCategory == .expenses ? "x\(vm.countExpensesForCategoryForYear(keyValues[1]))" : "x\(vm.countIncomesForCategoryForYear(keyValues[1]))")
+                        Text("x\(vm.countExpensesForCategory(.year, selectedOverviewCategory, keyValues[1]))")
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.secondary)
                         Spacer()
-                        Text(selectedOverviewCategory == .expenses ? "\(vm.countExpensesAmountForCategoryForYear(keyValues[1]), format: .currency(code: "PLN"))" : "\(vm.countIncomesAmountForCategoryForYear(keyValues[1]), format: .currency(code: "PLN"))")
+                        Text("\(vm.countExpensesAmountForCategory(.year, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundColor(.primary)
                     }
@@ -175,7 +175,7 @@ struct InsightsView: View {
                 Image(systemName: vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection , selectedOverviewCategory) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory) ? .green : .red)
-                Text("\(vm.compare(entryType: .expenses))%")
+                Text("\(vm.compare(entryType: selectedOverviewCategory))%")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory) ? .green : .red)
                 Spacer()
@@ -258,7 +258,7 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/7,
-                                    height: selectedOverviewCategory == .expenses ? vm.expensesMaximumForWeek == 0 ? 0 : (day.amount/vm.expensesMaximumForWeek)*150 : vm.incomesMaximumForWeek == 0 ? 0 : (day.amount/vm.incomesMaximumForWeek)*150)
+                                    height: vm.maximumValue == 0 ? 0 : (day.amount/vm.maximumValue)*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
                         Text(day.day)
@@ -266,29 +266,11 @@ struct InsightsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                VStack(alignment: .leading) {
-                    Text(selectedOverviewCategory == .expenses ? vm.expensesMaximumStringForWeek : vm.incomesMaximumStringForWeek)
-                    Spacer()
-                    Text("0")
-                        .offset(y: -25)
-                }
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                chartValues
                 Spacer()
             }
             if !Calendar.current.isDate(Date(), inSameDayAs: Date().startOfWeek()) {
-                HStack {
-                    Line()
-                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                        .foregroundColor(.secondary.opacity(0.7))
-                        .frame(height: 1)
-                    Text("\(vm.getAverageLineForWeek(chartType: vm.getCurrentAmountFor(.week, selectedOverviewCategory)), specifier: "%.2f")")
-                        .font(.system(size: 16, weight: .medium))
-                }
-                .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximumForWeek == 0 ? -13 : -13-((vm.getAverageLineForWeek(chartType: vm.getCurrentAmountFor(.week, selectedOverviewCategory))/vm.expensesMaximumForWeek)*150) :
-                            vm.incomesMaximumForWeek == 0 ? -13 : -13-((vm.getAverageLineForWeek(chartType: vm.getCurrentAmountFor(.week, selectedOverviewCategory))/vm.incomesMaximumForWeek)*150)
-                )
+                averageLine
             }
         }
     }
@@ -314,7 +296,7 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/31,
-                                    height: selectedOverviewCategory == .expenses ? vm.expensesMaximumForMonth == 0 ? 0 : (day.amount/vm.expensesMaximumForMonth)*150 : vm.incomesMaximumForMonth == 0 ? 0 : (day.amount/vm.incomesMaximumForMonth)*150)
+                                    height: vm.maximumValue == 0 ? 0 : (day.amount/vm.maximumValue)*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
                         if day.day == "1" || day.day == "7" || day.day == "14" || day.day == "21" || day.day == "28" {
@@ -328,29 +310,11 @@ struct InsightsView: View {
                         }
                     }
                 }
-                VStack(alignment: .leading) {
-                    Text(selectedOverviewCategory == .expenses ? vm.expensesMaximumStringForMonth : vm.incomesMaximumStringForMonth)
-                    Spacer()
-                    Text("0")
-                        .offset(y: -25)
-                }
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                chartValues
                 Spacer()
             }
-            if !Calendar.current.isDate(Date(), inSameDayAs: Date().startOfWeek()) {
-                HStack {
-                    Line()
-                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                        .foregroundColor(.secondary.opacity(0.7))
-                        .frame(height: 1)
-                    Text("\(vm.getAverageLineForMonth(chartType: vm.getCurrentAmountFor(.month, selectedOverviewCategory)), specifier: "%.2f")")
-                        .font(.system(size: 16, weight: .medium))
-                }
-                .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximumForMonth == 0 ? -13 : -13-((vm.getAverageLineForMonth(chartType: vm.getCurrentAmountFor(.month, selectedOverviewCategory))/vm.expensesMaximumForMonth)*150) :
-                            vm.incomesMaximumForMonth == 0 ? -13 : -13-((vm.getAverageLineForMonth(chartType: vm.getCurrentAmountFor(.month, selectedOverviewCategory))/vm.incomesMaximumForMonth)*150)
-                )
+            if !Calendar.current.isDate(Date(), inSameDayAs: Date().startOfMonth()) {
+                averageLine
             }
         }
     }
@@ -371,7 +335,7 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/12,
-                                    height: selectedOverviewCategory == .expenses ? vm.expensesMaximumForYear == 0 ? 0 : (month.amount/vm.expensesMaximumForYear)*150 : vm.incomesMaximumForYear == 0 ? 0 : (month.amount/vm.incomesMaximumForYear)*150)
+                                    height: vm.maximumValue == 0 ? 0 : (month.amount/vm.maximumValue)*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
                         Text(month.month.prefix(1))
@@ -379,31 +343,36 @@ struct InsightsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                VStack(alignment: .leading) {
-                    Text(selectedOverviewCategory == .expenses ? vm.expensesMaximumStringForYear : vm.incomesMaximumStringForYear)
-                    Spacer()
-                    Text("0")
-                        .offset(y: -25)
-                }
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                chartValues
                 Spacer()
             }
-            if !Calendar.current.isDate(Date(), inSameDayAs: Date().startOfWeek()) {
-                HStack {
-                    Line()
-                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                        .foregroundColor(.secondary.opacity(0.7))
-                        .frame(height: 1)
-                    Text("\(vm.getAverageLineForYear(chartType: vm.getCurrentAmountFor(.year, selectedOverviewCategory)), specifier: "%.2f")")
-                        .font(.system(size: 16, weight: .medium))
-                }
-                .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximumForYear == 0 ? -13 : -13-((vm.getAverageLineForYear(chartType: vm.getCurrentAmountFor(.year, selectedOverviewCategory))/vm.expensesMaximumForYear)*150) :
-                            vm.incomesMaximumForYear == 0 ? -13 : -13-((vm.getAverageLineForYear(chartType: vm.getCurrentAmountFor(.year, selectedOverviewCategory))/vm.incomesMaximumForYear)*150)
-                )
+            if !Calendar.current.isDate(Date(), inSameDayAs: Date().startOfYear()) {
+                averageLine
             }
         }
+    }
+    
+    var chartValues: some View {
+        VStack(alignment: .leading) {
+            Text(vm.maximumValueAsString)
+            Spacer()
+            Text("0")
+                .offset(y: -25)
+        }
+        .font(.system(size: 14, weight: .medium))
+        .foregroundColor(.secondary)
+    }
+    
+    var averageLine: some View {
+        HStack {
+            Line()
+                .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                .foregroundColor(.secondary.opacity(0.7))
+                .frame(height: 1)
+            Text("\(vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory)), specifier: "%.2f")")
+                .font(.system(size: 16, weight: .medium))
+        }
+        .offset(y: vm.maximumValue == 0 ? -13 : -13-((vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory))/vm.maximumValue)*150))
     }
     
     func refreshView() {
