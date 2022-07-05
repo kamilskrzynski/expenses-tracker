@@ -33,7 +33,7 @@ struct InsightsView: View {
                             
                             chartTimeFrames
                                 .onAppear {
-                                    vm.groupEntriesFor(time: timeSelection, entryType: selectedOverviewCategory)
+                                    vm.groupEntriesFor(timeSelection, selectedOverviewCategory)
                                 }
                                 .padding(.top, 15)
                             Spacer()
@@ -161,54 +161,33 @@ struct InsightsView: View {
         .listRowBackground(Color.clear)
     }
     
-    
+    // MARK: Navigation Title
     func getNavTitle() -> String {
-        switch timeSelection {
-        case .week:
-            return "\(vm.getCurrentAmountForWeek(entryType: selectedOverviewCategory)) zł"
-        case .month:
-            return "\(vm.getCurrentAmountForMonth(entryType: selectedOverviewCategory)) zł"
-        case .year:
-            return "\(vm.getCurrentAmountForYear(entryType: selectedOverviewCategory)) zł"
-        }
+            return "\(vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory)) zł"
     }
     
+    // MARK: Header
     var header: some View {
         HStack {
-            switch selectedOverviewCategory {
-            case .expenses:
-                
-                Text(" Total spent this \(timeSelection.rawValue.lowercased())")
+                Text(selectedOverviewCategory == .expenses ? " Total spent this \(timeSelection.rawValue.lowercased())" : " Total revenue this \(timeSelection.rawValue.lowercased())")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.secondary)
-                Image(systemName: vm.getLastAmountDouble(entryType: .expenses) > vm.getCurrentAmountForWeek(entryType: .expenses) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
+                Image(systemName: vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection , selectedOverviewCategory) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(vm.getLastAmountDouble(entryType: .expenses) > vm.getCurrentAmountForWeek(entryType: .expenses) ? .green : .red)
+                    .foregroundStyle(vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory) ? .green : .red)
                 Text("\(vm.compare(entryType: .expenses))%")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(vm.getLastAmountDouble(entryType: .expenses) > vm.getCurrentAmountForWeek(entryType: .expenses) ? .green : .red)
+                    .foregroundStyle(vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory) ? .green : .red)
                 Spacer()
-            case .incomes:
-                
-                Text(" Total revenue this \(timeSelection.rawValue.lowercased())")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.secondary)
-                Image(systemName: vm.getLastAmountDouble(entryType: .incomes) < vm.getCurrentAmountForWeek(entryType: .incomes) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(vm.getLastAmountDouble(entryType: .incomes) < vm.getCurrentAmountForWeek(entryType: .incomes) ? .green : .red)
-                Text("\(vm.compare(entryType: .incomes))%")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(vm.getLastAmountDouble(entryType: .incomes) < vm.getCurrentAmountForWeek(entryType: .incomes) ? .green : .red)
-                Spacer()
-            }
         }
     }
     
+    // MARK: Toolbar
     var toolbarItems: some View {
         Menu {
             Button {
                 selectedOverviewCategory = .expenses
-                vm.groupEntriesFor(time: timeSelection, entryType: .expenses)
+                vm.groupEntriesFor(timeSelection, .expenses)
             } label: {
                 HStack {
                     if selectedOverviewCategory == .expenses {
@@ -219,7 +198,7 @@ struct InsightsView: View {
             }
             Button {
                 selectedOverviewCategory = .incomes
-                vm.groupEntriesFor(time: timeSelection, entryType: .incomes)
+                vm.groupEntriesFor(timeSelection,.incomes)
             } label: {
                 HStack {
                     if selectedOverviewCategory == .incomes {
@@ -235,12 +214,18 @@ struct InsightsView: View {
         }
     }
     
+    // MARK: Chart Time Frames
     var chartTimeFrames: some View {
         HStack {
             ForEach(TimePeriod.allCases, id: \.rawValue) { timeFrame in
                 Button {
-                    timeSelection = timeFrame
-                    vm.groupEntriesFor(time: timeFrame, entryType: selectedOverviewCategory)
+                    DispatchQueue.main.async {
+                        timeSelection = timeFrame
+                        vm.groupEntriesFor(timeFrame, selectedOverviewCategory)
+                        vm.getMaximumAmountFor(timeFrame, selectedOverviewCategory)
+                        vm.getAllBy(timeFrame, selectedOverviewCategory)
+                        vm.getAllForCurrent(timeFrame, selectedOverviewCategory)
+                    }
                 } label: {
                     Text(timeFrame.rawValue.firstUppercased)
                         .font(.system(size: 18, weight: .semibold))
@@ -297,12 +282,12 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text("\(vm.getAverageLineForWeek(chartType: vm.getCurrentAmountForWeek(entryType: selectedOverviewCategory)), specifier: "%.2f")")
+                    Text("\(vm.getAverageLineForWeek(chartType: vm.getCurrentAmountFor(.week, selectedOverviewCategory)), specifier: "%.2f")")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximumForWeek == 0 ? -13 : -13-((vm.getAverageLineForWeek(chartType: vm.getCurrentAmountForWeek(entryType: .expenses))/vm.expensesMaximumForWeek)*150) :
-                            vm.incomesMaximumForWeek == 0 ? -13 : -13-((vm.getAverageLineForWeek(chartType: vm.getCurrentAmountForWeek(entryType: .incomes))/vm.incomesMaximumForWeek)*150)
+                        vm.expensesMaximumForWeek == 0 ? -13 : -13-((vm.getAverageLineForWeek(chartType: vm.getCurrentAmountFor(.week, selectedOverviewCategory))/vm.expensesMaximumForWeek)*150) :
+                            vm.incomesMaximumForWeek == 0 ? -13 : -13-((vm.getAverageLineForWeek(chartType: vm.getCurrentAmountFor(.week, selectedOverviewCategory))/vm.incomesMaximumForWeek)*150)
                 )
             }
         }
@@ -359,12 +344,12 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text("\(vm.getAverageLineForMonth(chartType: vm.getCurrentAmountForMonth(entryType: selectedOverviewCategory)), specifier: "%.2f")")
+                    Text("\(vm.getAverageLineForMonth(chartType: vm.getCurrentAmountFor(.month, selectedOverviewCategory)), specifier: "%.2f")")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximumForMonth == 0 ? -13 : -13-((vm.getAverageLineForMonth(chartType: vm.getCurrentAmountForMonth(entryType: .expenses))/vm.expensesMaximumForMonth)*150) :
-                            vm.incomesMaximumForMonth == 0 ? -13 : -13-((vm.getAverageLineForMonth(chartType: vm.getCurrentAmountForMonth(entryType: .incomes))/vm.incomesMaximumForMonth)*150)
+                        vm.expensesMaximumForMonth == 0 ? -13 : -13-((vm.getAverageLineForMonth(chartType: vm.getCurrentAmountFor(.month, selectedOverviewCategory))/vm.expensesMaximumForMonth)*150) :
+                            vm.incomesMaximumForMonth == 0 ? -13 : -13-((vm.getAverageLineForMonth(chartType: vm.getCurrentAmountFor(.month, selectedOverviewCategory))/vm.incomesMaximumForMonth)*150)
                 )
             }
         }
@@ -410,12 +395,12 @@ struct InsightsView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.secondary.opacity(0.7))
                         .frame(height: 1)
-                    Text("\(vm.getAverageLineForYear(chartType: vm.getCurrentAmountForYear(entryType: selectedOverviewCategory)), specifier: "%.2f")")
+                    Text("\(vm.getAverageLineForYear(chartType: vm.getCurrentAmountFor(.year, selectedOverviewCategory)), specifier: "%.2f")")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .offset(y: selectedOverviewCategory == .expenses ?
-                        vm.expensesMaximumForYear == 0 ? -13 : -13-((vm.getAverageLineForYear(chartType: vm.getCurrentAmountForYear(entryType: .expenses))/vm.expensesMaximumForYear)*150) :
-                            vm.incomesMaximumForYear == 0 ? -13 : -13-((vm.getAverageLineForYear(chartType: vm.getCurrentAmountForYear(entryType: .incomes))/vm.incomesMaximumForYear)*150)
+                        vm.expensesMaximumForYear == 0 ? -13 : -13-((vm.getAverageLineForYear(chartType: vm.getCurrentAmountFor(.year, selectedOverviewCategory))/vm.expensesMaximumForYear)*150) :
+                            vm.incomesMaximumForYear == 0 ? -13 : -13-((vm.getAverageLineForYear(chartType: vm.getCurrentAmountFor(.year, selectedOverviewCategory))/vm.incomesMaximumForYear)*150)
                 )
             }
         }

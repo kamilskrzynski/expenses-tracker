@@ -9,10 +9,11 @@ import SwiftUI
 
 struct ListView: View {
     
+    // MARK: State properies
     @State private var isSheetShowed: Bool = false
     @StateObject private var vm = ListViewModel()
-    @State var expenses = [YearChartData]()
     
+    // MARK: Body
     var body: some View {
         NavigationView {
             VStack {
@@ -87,13 +88,13 @@ struct ListView: View {
                 .foregroundColor(.secondary)
             HStack(spacing: 0) {
                 
-                Text(vm.getCurrentAmount(entryType: .expenses)[0])
+                Text(vm.getCurrentWeekAmountAsArray(.expenses)[0])
                     .foregroundColor(.primary)
                     .font(.system(size: 60, weight: .medium))
                 VStack(alignment: .leading) {
                     HStack {
                         
-                        Text(",\(vm.getCurrentAmount(entryType: .expenses)[1])")
+                        Text(",\(vm.getCurrentWeekAmountAsArray(.expenses)[1])")
                             .foregroundColor(.primary)
                             .font(.system(size: 25, weight: .medium))
                         Text("zł")
