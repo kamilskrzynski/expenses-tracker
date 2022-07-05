@@ -144,39 +144,25 @@ class CoreDataManager {
         }
     }
     
-    /// Getting all expenses/incomes for current Week by each day from CoreData
-    func getAllForCurrentWeekByDay(entryType: String, dayOfWeek: Int) -> [Entry] {
+    /// Getting all expenses/incomes for current Week/Month/Year by each day/month from CoreData
+    func getAllBy(_ timePeriod: TimePeriod, _ entryType: String, by: Int) -> [Entry] {
         
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        let fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().getNextDays(dayAmount: dayOfWeek) as NSDate)
-        let toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().getNextDays(dayAmount: dayOfWeek + 1) as NSDate)
         let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), entryType as String)
-        let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-        fetchRequest.predicate = datePredicate
+        var fromPredicate = NSPredicate()
+        var toPredicate = NSPredicate()
         
-        return fetch(fetchRequest: fetchRequest)
-    }
-    
-    /// Getting all expenses/incomes for current Month by each day from CoreData
-    func getAllForCurrentMonthByDay(entryType: String, dayOfMonth: Int) -> [Entry] {
-        
-        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        let fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().getNextDaysOfMonth(dayAmount: dayOfMonth) as NSDate)
-        let toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().getNextDaysOfMonth(dayAmount: dayOfMonth + 1) as NSDate)
-        let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), entryType as String)
-        let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-        fetchRequest.predicate = datePredicate
-        
-        return fetch(fetchRequest: fetchRequest)
-    }
-    
-    /// Getting all expenses/incomes for current Year by each day from CoreData
-    func getAllForCurrentYearByMonth(entryType: String, monthOfYear: Int) -> [Entry] {
-        
-        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        let fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().getNextMonths(monthAmount: monthOfYear) as NSDate)
-        let toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().getNextMonths(monthAmount: monthOfYear + 1) as NSDate)
-        let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), entryType as String)
+        switch timePeriod {
+        case .week:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().getNextDays(dayAmount: by) as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().getNextDays(dayAmount: by + 1) as NSDate)
+        case .month:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().getNextDaysOfMonth(dayAmount: by) as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().getNextDaysOfMonth(dayAmount: by + 1) as NSDate)
+        case .year:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().getNextMonths(monthAmount: by) as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().getNextMonths(monthAmount: by + 1) as NSDate)
+        }
         let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
         fetchRequest.predicate = datePredicate
         

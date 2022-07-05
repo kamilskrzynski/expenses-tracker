@@ -354,14 +354,14 @@ final class ListViewModel: ObservableObject {
             case .expenses:
                 expensesWeekly = []
                 for day in days {
-                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "expense", dayOfWeek: days.firstIndex(of: day)!)
+                    let entries = CoreDataManager.shared.getAllBy(.week, "expense", by: days.firstIndex(of: day)!)
                     let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
                     expensesWeekly.append(chartData)
                 }
             case .incomes:
                 incomesWeekly = []
                 for day in days {
-                    let entries = CoreDataManager.shared.getAllForCurrentWeekByDay(entryType: "income", dayOfWeek: days.firstIndex(of: day)!)
+                    let entries = CoreDataManager.shared.getAllBy(.week, "income", by: days.firstIndex(of: day)!)
                     let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
                     incomesWeekly.append(chartData)
                 }
@@ -371,14 +371,14 @@ final class ListViewModel: ObservableObject {
             case .expenses:
                 expensesMonthly = []
                 for day in daysOfMonth {
-                    let entries = CoreDataManager.shared.getAllForCurrentMonthByDay(entryType: "expense", dayOfMonth: daysOfMonth.firstIndex(of: day)!)
+                    let entries = CoreDataManager.shared.getAllBy(.month, "expense", by: daysOfMonth.firstIndex(of: day)!)
                     let chartData = MonthChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
                     expensesMonthly.append(chartData)
                 }
             case .incomes:
                 incomesMonthly = []
                 for day in daysOfMonth {
-                    let entries = CoreDataManager.shared.getAllForCurrentMonthByDay(entryType: "income", dayOfMonth: daysOfMonth.firstIndex(of: day)!)
+                    let entries = CoreDataManager.shared.getAllBy(.month, "income", by: daysOfMonth.firstIndex(of: day)!)
                     let chartData = MonthChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
                     incomesMonthly.append(chartData)
                 }
@@ -388,14 +388,14 @@ final class ListViewModel: ObservableObject {
             case .expenses:
                 expensesYearly = []
                 for month in months {
-                    let entries = CoreDataManager.shared.getAllForCurrentYearByMonth(entryType: "expense", monthOfYear: months.firstIndex(of: month)!)
+                    let entries = CoreDataManager.shared.getAllBy(.year, "expense", by: months.firstIndex(of: month)!)
                     let chartData = YearChartData(month: month, amount: entries.map { $0.amount }.reduce(0, +))
                     expensesYearly.append(chartData)
                 }
             case .incomes:
                 incomesYearly = []
                 for month in months {
-                    let entries = CoreDataManager.shared.getAllForCurrentYearByMonth(entryType: "income", monthOfYear: months.firstIndex(of: month)!)
+                    let entries = CoreDataManager.shared.getAllBy(.year, "income", by: months.firstIndex(of: month)!)
                     let chartData = YearChartData(month: month, amount: entries.map { $0.amount }.reduce(0, +))
                     incomesYearly.append(chartData)
                 }
@@ -410,13 +410,13 @@ final class ListViewModel: ObservableObject {
         case .week:
             switch entryType {
             case .expenses:
-                let maxValue = self.expensesWeekly.max(by: {(chartData1, chartData2)-> Bool in
+                let maxValue = self.expensesWeekly.max(by: {(chartData1, chartData2) -> Bool in
                     return chartData1.amount < chartData2.amount
                 })
                 self.maximumValue = maxValue?.amount ?? 0
                 self.maximumValueAsString = String(format: "%.2f", maximumValue)
             case .incomes:
-                let maxValue = self.incomesWeekly.max(by: {(chartData1, chartData2)-> Bool in
+                let maxValue = self.incomesWeekly.max(by: {(chartData1, chartData2) -> Bool in
                     return chartData1.amount < chartData2.amount
                 })
                 self.maximumValue = maxValue?.amount ?? 0
@@ -425,13 +425,13 @@ final class ListViewModel: ObservableObject {
         case .month:
             switch entryType {
             case .expenses:
-                let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2)-> Bool in
+                let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2) -> Bool in
                     return chartData1.amount < chartData2.amount
                 })
                 self.maximumValue = maxValue?.amount ?? 0
                 self.maximumValueAsString = String(format: "%.2f", maximumValue)
             case .incomes:
-                let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2)-> Bool in
+                let maxValue = self.incomesMonthly.max(by: {(chartData1, chartData2) -> Bool in
                     return chartData1.amount < chartData2.amount
                 })
                 self.maximumValue = maxValue?.amount ?? 0
@@ -440,13 +440,13 @@ final class ListViewModel: ObservableObject {
         case .year:
             switch entryType {
             case .expenses:
-                let maxValue = self.expensesYearly.max(by: {(chartData1, chartData2)-> Bool in
+                let maxValue = self.expensesYearly.max(by: {(chartData1, chartData2) -> Bool in
                     return chartData1.amount < chartData2.amount
                 })
                 self.maximumValue = maxValue?.amount ?? 0
                 self.maximumValueAsString = String(format: "%.2f", maximumValue)
             case .incomes:
-                let maxValue = self.incomesYearly.max(by: {(chartData1, chartData2)-> Bool in
+                let maxValue = self.incomesYearly.max(by: {(chartData1, chartData2) -> Bool in
                     return chartData1.amount < chartData2.amount
                 })
                 self.maximumValue = maxValue?.amount ?? 0
@@ -481,7 +481,6 @@ final class ListViewModel: ObservableObject {
     }
     
     func getCurrentWeekAmountAsArray(_ entryType: EntryType) -> [String] {
-        
         var total = 0.0
         switch entryType {
         case .expenses:
@@ -498,7 +497,7 @@ final class ListViewModel: ObservableObject {
     }
     
     // MARK: GetCurrentAmount -> Double
-    /// Getting amount of expenses/incomes from whole week as Double
+    /// Getting amount of expenses/incomes from whole week/month/year as Double
     func getCurrentAmountFor(_ time: TimePeriod, _ entryType: EntryType) -> Double {
         
         var total = 0.00
@@ -566,7 +565,7 @@ final class ListViewModel: ObservableObject {
     }
     
     // MARK: GetAverage
-    /// Used to get average amount of expenses/incomes from whole week
+    /// Used to get average amount of expenses/incomes from whole week/month/year
     func getAverageLine(_ time: TimePeriod, _ chartType: Double) -> Double {
         switch time {
         case .week:
