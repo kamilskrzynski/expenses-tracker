@@ -24,26 +24,6 @@ struct ListView: View {
                         Spacer()
                             .frame(height: 100)
                         entriesList
-                            .onAppear {
-                                    let entries = CoreDataManager.shared.getAllForCurrentYearByMonth(entryType: "expense", monthOfYear: 6)
-                                    let chartData = YearChartData(month: "J", amount: entries.map { $0.amount }.reduce(0, +))
-                                    expenses.append(chartData)
-                                print(Date().startOfYear())
-                                print(Date().getNextMonths(monthAmount: 1))
-                                print(Date().getNextMonths(monthAmount: 2))
-                                print(Date().getNextMonths(monthAmount: 3))
-                                print(Date().getNextMonths(monthAmount: 4))
-                                print(Date().getNextMonths(monthAmount: 5))
-                                print(Date().getNextMonths(monthAmount: 6))
-                                print(Date().getNextMonths(monthAmount: 7))
-                                print(Date().getNextMonths(monthAmount: 8))
-                                print(Date().getNextMonths(monthAmount: 9))
-                                print(Date().getNextMonths(monthAmount: 10))
-                                print(Date().getNextMonths(monthAmount: 11))
-                                print(Date().getNextMonths(monthAmount: 12))
-                                print(expenses)
-                                
-                            }
                     }
                 }
             }

@@ -30,6 +30,7 @@
 		37CFA24C2858ACB000B59CA7 /* EntriesListRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA24B2858ACB000B59CA7 /* EntriesListRowView.swift */; };
 		37CFA24E2858ADC900B59CA7 /* EntriesListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA24D2858ADC900B59CA7 /* EntriesListHeaderView.swift */; };
 		37CFA2512858D1D400B59CA7 /* AddCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA2502858D1D400B59CA7 /* AddCategoryView.swift */; };
+		37CFA253287454F500B59CA7 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CFA252287454F500B59CA7 /* String+Extensions.swift */; };
 		37F786A42850A1A700B5B720 /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F786A32850A1A700B5B720 /* ListViewModel.swift */; };
 		37F786A72850DBBB00B5B720 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 37F786A62850DBBB00B5B720 /* Collections */; };
 		37F786A92850DBBB00B5B720 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 37F786A82850DBBB00B5B720 /* OrderedCollections */; };
@@ -60,6 +61,7 @@
 		37CFA24B2858ACB000B59CA7 /* EntriesListRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntriesListRowView.swift; sourceTree = "<group>"; };
 		37CFA24D2858ADC900B59CA7 /* EntriesListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntriesListHeaderView.swift; sourceTree = "<group>"; };
 		37CFA2502858D1D400B59CA7 /* AddCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategoryView.swift; sourceTree = "<group>"; };
+		37CFA252287454F500B59CA7 /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
 		37F786A32850A1A700B5B720 /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -133,6 +135,7 @@
 				37CFA243285395FE00B59CA7 /* Date+Extensions.swift */,
 				37CFA2452853967200B59CA7 /* Calendar+Extensions.swift */,
 				37CFA2492858A8A200B59CA7 /* Image+Extensions.swift */,
+				37CFA252287454F500B59CA7 /* String+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -291,6 +294,7 @@
 				377621F0284F8EA3005180CB /* CategoriesViewModel.swift in Sources */,
 				377621E8284F5992005180CB /* KeyboardNumbers.swift in Sources */,
 				375CFAFD284E050A00B80FA9 /* ListView.swift in Sources */,
+				37CFA253287454F500B59CA7 /* String+Extensions.swift in Sources */,
 				377621F528507ECD005180CB /* CoreDataManager.swift in Sources */,
 				37CFA2512858D1D400B59CA7 /* AddCategoryView.swift in Sources */,
 				377621EC284F71D6005180CB /* Category.swift in Sources */,

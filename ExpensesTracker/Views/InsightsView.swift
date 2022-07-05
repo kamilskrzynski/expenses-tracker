@@ -7,15 +7,11 @@
 
 import SwiftUI
 
-enum TimeFrameSelection: String, CaseIterable {
-    case Week, Month, Year
-}
-
 struct InsightsView: View {
     
     @StateObject private var vm = ListViewModel()
     @State private var selectedOverviewCategory: EntryType = .expenses
-    @State private var timeSelection: TimeFrameSelection = .Week
+    @State private var timeSelection: TimePeriod = .week
     
     var body: some View {
         NavigationView {
@@ -27,30 +23,30 @@ struct InsightsView: View {
                         VStack(alignment: .leading) {
                             header
                             switch timeSelection {
-                            case .Week:
+                            case .week:
                                 weekChart
-                            case .Month:
+                            case .month:
                                 monthChart
-                            case .Year:
+                            case .year:
                                 yearChart
                             }
                             
                             chartTimeFrames
                                 .onAppear {
-                                    vm.refreshView()
+                                    vm.groupEntriesFor(time: timeSelection, entryType: selectedOverviewCategory)
                                 }
                                 .padding(.top, 15)
                             Spacer()
                                 .frame(height: 30)
                             Divider()
                             switch timeSelection {
-                            case .Week:
+                            case .week:
                                 weeklyEntries
                                     .padding(.trailing)
-                            case .Month:
+                            case .month:
                                 monthlyEntries
                                     .padding(.trailing)
-                            case .Year:
+                            case .year:
                                 yearlyEntries
                                     .padding(.trailing)
                             }
@@ -81,7 +77,7 @@ struct InsightsView: View {
     }
     
     var weeklyEntries: some View {
-        ForEach(selectedOverviewCategory == .expenses ? vm.groupedExpensesCategoriesKeysForWeek : vm.groupedIncomesCategoriesKeysForWeek, id: \.self) { key in
+        ForEach(vm.groupedCategoriesKeys, id: \.self) { key in
             let keyValues = key.components(separatedBy: "/")
             HStack {
                 Text(keyValues[0])
@@ -109,7 +105,7 @@ struct InsightsView: View {
     }
     
     var monthlyEntries: some View {
-        ForEach(selectedOverviewCategory == .expenses ? vm.groupedExpensesCategoriesKeysForMonth : vm.groupedIncomesCategoriesKeysForMonth, id: \.self) { key in
+        ForEach(vm.groupedCategoriesKeys, id: \.self) { key in
             let keyValues = key.components(separatedBy: "/")
             HStack {
                 Text(keyValues[0])
@@ -138,7 +134,7 @@ struct InsightsView: View {
     
     
     var yearlyEntries: some View {
-        ForEach(selectedOverviewCategory == .expenses ? vm.groupedExpensesCategoriesKeysForYear : vm.groupedIncomesCategoriesKeysForYear, id: \.self) { key in
+        ForEach(vm.groupedCategoriesKeys, id: \.self) { key in
             let keyValues = key.components(separatedBy: "/")
             HStack {
                 Text(keyValues[0])
@@ -168,11 +164,11 @@ struct InsightsView: View {
     
     func getNavTitle() -> String {
         switch timeSelection {
-        case .Week:
+        case .week:
             return "\(vm.getCurrentAmountForWeek(entryType: selectedOverviewCategory)) zł"
-        case .Month:
+        case .month:
             return "\(vm.getCurrentAmountForMonth(entryType: selectedOverviewCategory)) zł"
-        case .Year:
+        case .year:
             return "\(vm.getCurrentAmountForYear(entryType: selectedOverviewCategory)) zł"
         }
     }
@@ -212,6 +208,7 @@ struct InsightsView: View {
         Menu {
             Button {
                 selectedOverviewCategory = .expenses
+                vm.groupEntriesFor(time: timeSelection, entryType: .expenses)
             } label: {
                 HStack {
                     if selectedOverviewCategory == .expenses {
@@ -222,6 +219,7 @@ struct InsightsView: View {
             }
             Button {
                 selectedOverviewCategory = .incomes
+                vm.groupEntriesFor(time: timeSelection, entryType: .incomes)
             } label: {
                 HStack {
                     if selectedOverviewCategory == .incomes {
@@ -239,11 +237,12 @@ struct InsightsView: View {
     
     var chartTimeFrames: some View {
         HStack {
-            ForEach(TimeFrameSelection.allCases, id: \.rawValue) { timeFrame in
+            ForEach(TimePeriod.allCases, id: \.rawValue) { timeFrame in
                 Button {
                     timeSelection = timeFrame
+                    vm.groupEntriesFor(time: timeFrame, entryType: selectedOverviewCategory)
                 } label: {
-                    Text(timeFrame.rawValue)
+                    Text(timeFrame.rawValue.firstUppercased)
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(timeSelection == timeFrame ? .primary : .appChartGray)
                         .padding(10)
@@ -423,12 +422,7 @@ struct InsightsView: View {
     }
     
     func refreshView() {
-        vm.groupEntriesForWeek(entryType: .expenses)
-        vm.groupEntriesForWeek(entryType: .incomes)
-        vm.groupEntriesForMonth(entryType: .expenses)
-        vm.groupEntriesForMonth(entryType: .incomes)
-        vm.groupEntriesForYear(entryType: .expenses)
-        vm.groupEntriesForYear(entryType: .incomes)
+        // TODO
     }
 }
 

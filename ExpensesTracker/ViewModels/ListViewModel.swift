@@ -13,7 +13,7 @@ enum EntryType {
     case expenses, incomes
 }
 
-enum TimePeriod {
+enum TimePeriod: String, CaseIterable {
     case week, month, year
 }
 
@@ -49,21 +49,8 @@ final class ListViewModel: ObservableObject {
     
     @Published var allEntriesFromDay = [EntryViewModel]()
     
-    @Published var groupedExpensesCategoriesForWeek = [String: [EntryViewModel]]()
-    @Published var groupedExpensesCategoriesKeysForWeek = [String]()
-    @Published var groupedIncomesCategoriesForWeek = [String: [EntryViewModel]]()
-    @Published var groupedIncomesCategoriesKeysForWeek = [String]()
-    
-    
-    @Published var groupedExpensesCategoriesForMonth = [String: [EntryViewModel]]()
-    @Published var groupedExpensesCategoriesKeysForMonth = [String]()
-    @Published var groupedIncomesCategoriesForMonth = [String: [EntryViewModel]]()
-    @Published var groupedIncomesCategoriesKeysForMonth = [String]()
-    
-    @Published var groupedExpensesCategoriesForYear = [String: [EntryViewModel]]()
-    @Published var groupedExpensesCategoriesKeysForYear = [String]()
-    @Published var groupedIncomesCategoriesForYear = [String: [EntryViewModel]]()
-    @Published var groupedIncomesCategoriesKeysForYear = [String]()
+    @Published var groupedCategories = [String: [EntryViewModel]]()
+    @Published var groupedCategoriesKeys = [String]()
     
     @Published var expensesWeekly = [WeekChartData]()
     @Published var incomesWeekly = [WeekChartData]()
@@ -99,8 +86,6 @@ final class ListViewModel: ObservableObject {
         getAllForCurrent(timePeriod: .week, entryType: .expenses)
         getMaximumAmountForWeek(entryType: .expenses)
         getMaximumAmountForWeek(entryType: .incomes)
-        groupEntriesForWeek(entryType: .expenses)
-        groupEntriesForWeek(entryType: .incomes)
     }
     
     /// Getting all nessesary things from CoreData
@@ -128,8 +113,6 @@ final class ListViewModel: ObservableObject {
         getMaximumAmountForMonth(entryType: .incomes)
         getMaximumAmountForYear(entryType: .expenses)
         getMaximumAmountForYear(entryType: .incomes)
-        print(expensesYearly)
-        print(allExpensesForCurrentYear)
     }
     
     /// Getting String representation of day
@@ -170,39 +153,38 @@ final class ListViewModel: ObservableObject {
     
     // MARK: Group Entries
     /// Grouping expenses/incomes
-    func groupEntriesForWeek(entryType: EntryType) {
-        switch entryType {
-        case .expenses:
-            self.groupedExpensesCategoriesForWeek = Dictionary(grouping: self.allExpensesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedExpensesCategoriesKeysForWeek = groupedExpensesCategoriesForWeek.map { $0.key }
-        case .incomes:
-            self.groupedIncomesCategoriesForWeek = Dictionary(grouping: self.allIncomesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedIncomesCategoriesKeysForWeek = groupedIncomesCategoriesForWeek
-                .map { $0.key }
-        }
-    }
-    
-    func groupEntriesForMonth(entryType: EntryType) {
-        switch entryType {
-        case .expenses:
-            self.groupedExpensesCategoriesForMonth = Dictionary(grouping: self.allExpensesForCurrentMonth, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedExpensesCategoriesKeysForMonth = groupedExpensesCategoriesForMonth.map { $0.key }
-        case .incomes:
-            self.groupedIncomesCategoriesForMonth = Dictionary(grouping: self.allIncomesForCurrentMonth, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedIncomesCategoriesKeysForMonth = groupedIncomesCategoriesForMonth
-                .map { $0.key }
-        }
-    }
-    
-    func groupEntriesForYear(entryType: EntryType) {
-        switch entryType {
-        case .expenses:
-            self.groupedExpensesCategoriesForYear = Dictionary(grouping: self.allExpensesForCurrentYear, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedExpensesCategoriesKeysForYear = groupedExpensesCategoriesForYear.map { $0.key }
-        case .incomes:
-            self.groupedIncomesCategoriesForYear = Dictionary(grouping: self.allIncomesForCurrentYear, by: { $0.typeEmoji + "/" + $0.typeName })
-            self.groupedIncomesCategoriesKeysForYear = groupedIncomesCategoriesForYear
-                .map { $0.key }
+    func groupEntriesFor(time: TimePeriod, entryType: EntryType) {
+        switch time {
+        case .week:
+            switch entryType {
+            case .expenses:
+                self.groupedCategories = Dictionary(grouping: self.allExpensesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
+                self.groupedCategoriesKeys = groupedCategories.map { $0.key }
+            case .incomes:
+                self.groupedCategories = Dictionary(grouping: self.allIncomesForCurrentWeek, by: { $0.typeEmoji + "/" + $0.typeName })
+                self.groupedCategoriesKeys = groupedCategories
+                    .map { $0.key }
+            }
+        case .month:
+            switch entryType {
+            case .expenses:
+                self.groupedCategories = Dictionary(grouping: self.allExpensesForCurrentMonth, by: { $0.typeEmoji + "/" + $0.typeName })
+                self.groupedCategoriesKeys = groupedCategories.map { $0.key }
+            case .incomes:
+                self.groupedCategories = Dictionary(grouping: self.allIncomesForCurrentMonth, by: { $0.typeEmoji + "/" + $0.typeName })
+                self.groupedCategoriesKeys = groupedCategories
+                    .map { $0.key }
+            }
+        case .year:
+            switch entryType {
+            case .expenses:
+                self.groupedCategories = Dictionary(grouping: self.allExpensesForCurrentYear, by: { $0.typeEmoji + "/" + $0.typeName })
+                self.groupedCategoriesKeys = groupedCategories.map { $0.key }
+            case .incomes:
+                self.groupedCategories = Dictionary(grouping: self.allIncomesForCurrentYear, by: { $0.typeEmoji + "/" + $0.typeName })
+                self.groupedCategoriesKeys = groupedCategories
+                    .map { $0.key }
+            }
         }
     }
     
@@ -333,7 +315,7 @@ final class ListViewModel: ObservableObject {
             case .incomes:
                 let entries = CoreDataManager.shared.getAllForCurrentYear(entryType: .incomes)
                 DispatchQueue.main.async {
-                    self.allExpensesForCurrentYear = entries.map(EntryViewModel.init)
+                    self.allIncomesForCurrentYear = entries.map(EntryViewModel.init)
                 }
             }
         }
