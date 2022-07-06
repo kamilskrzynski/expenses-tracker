@@ -38,32 +38,8 @@ typealias EntryGroup = OrderedDictionary<Date, [EntryViewModel]>
 
 final class ListViewModel: ObservableObject {
     
-    // MARK: Note
-    /// This mess needs to be cleaned, for now it's just battle ground for testing
-    
-    @Published var allEntriesFromDay = [EntryViewModel]()
-    
-    @Published var maximumValue: Double = 0.0
-    @Published var maximumValueAsString: String = ""
-    
-    // MARK: RefreshView
-    func refreshView() {
-        //        getAll(entryType: .expenses)
-        //        getAll(entryType: .incomes)
-        //        getAllEntries()
-        getMaximumAmountFor(.week, .expenses)
-        getMaximumAmountFor(.week, .incomes)
-    }
-    
-    /// Getting all nessesary things from CoreData
-    init() {
-        //        getAllEntries()
-        //        getAll(entryType: .expenses)
-        //        getAll(entryType: .incomes)
-        getMaximumAmountFor(.week, .expenses)
-        getMaximumAmountFor(.week, .incomes)
-    }
-    
+    // MARK: Functions
+    // MARK: getDay()
     /// Getting String representation of day
     func getDay(selectedDate: Date) -> String {
         if Calendar.current.isDateInToday(selectedDate) {
@@ -79,6 +55,8 @@ final class ListViewModel: ObservableObject {
         }
     }
     
+    // MARK: compare()
+    /// Compares previous time period to current one to get percentage
     func compare(_ timePeriod: TimePeriod, _ entryType: EntryType) -> Int {
         guard getCurrentAmountFor(timePeriod, entryType) != 0.0 && getLastAmountFor(timePeriod, entryType) != 0.0 else {
             return 0
@@ -89,16 +67,18 @@ final class ListViewModel: ObservableObject {
         return Int(abs(round(percentage)))
     }
     
-    // MARK: Group Entries
+    // MARK: groupEntriesFor()
     /// Grouping expenses/incomes
     func groupEntriesFor(_ time: TimePeriod, _ entryType: EntryType) -> [String: [EntryViewModel]] {
         return Dictionary(grouping: self.getAllForCurrent(time, entryType), by: { $0.typeEmoji + "/" + $0.typeName })
     }
     
+    
     func getKeyValues(_ time: TimePeriod, _ entryType: EntryType) -> [String] {
         return groupEntriesFor(time, entryType).map { $0.key }
     }
     
+    // MARK: getSpendingsFromDay()
     /// Getting total spendings from single day
     func getSpendingsFromDay(day: Date) -> Double {
         
@@ -111,24 +91,31 @@ final class ListViewModel: ObservableObject {
         return dailySpendings
     }
     
-    func countExpensesForCategory(_ time: TimePeriod, _ entryType: EntryType, _ category: String) -> Int {
-        return self.getAllForCurrent(time, entryType).filter { $0.typeName == category }.count
+    // MARK: countExpensesForCategory()
+    /// Counts how many times specific category occurs in given time period
+    func countEntriesForCategory(_ time: TimePeriod, _ entryType: EntryType, _ category: String) -> Int {
+        return self.getAllForCurrent(time, entryType)
+            .filter { $0.typeName == category }
+            .count
     }
     
-    func countExpensesAmountForCategory(_ time: TimePeriod, _ entryType: EntryType, _ category: String) -> Double {
+    // MARK: countEntriesAmountForCategory()
+    /// Sum up of entry values for every category
+    func countEntriesAmountForCategory(_ time: TimePeriod, _ entryType: EntryType, _ category: String) -> Double {
         return self.getAllForCurrent(time, entryType)
             .filter { $0.typeName == category }
             .map { $0.amount }
             .reduce(0, +)
     }
     
+    // MARK: getAllEntries()
     /// Getting all entries
     func getAllEntries() -> [EntryViewModel] {
         let entries = CoreDataManager.shared.getAllEntries()
             return entries.map(EntryViewModel.init)
     }
     
-    // MARK: GetAllForCurrentWeek
+    // MARK: getAllForCurrent()
     /// Getting all expenses/income for current week/month/year
     func getAllForCurrent(_ timePeriod: TimePeriod, _ entryType: EntryType) -> [EntryViewModel] {
         return CoreDataManager
@@ -137,7 +124,7 @@ final class ListViewModel: ObservableObject {
             .map(EntryViewModel.init)
     }
     
-    // MARK: GetAllForLastWeek
+    // MARK: getAllForLast()
     /// Getting all expenses/income for last week/month/year
     func getAllForLast(_ timePeriod: TimePeriod, _ entryType: EntryType) -> [EntryViewModel] {
         return CoreDataManager
@@ -146,7 +133,7 @@ final class ListViewModel: ObservableObject {
             .map(EntryViewModel.init)
     }
     
-    //MARK: GetAllBy
+    //MARK: getAllBy()
     /// Used to get all expenses/incomes for current week/month/year by day/month
     func getAllBy(_ timePeriod: TimePeriod, _ entryType: EntryType) -> [ChartData] {
         
@@ -177,7 +164,7 @@ final class ListViewModel: ObservableObject {
         return chartValues
     }
     
-    // MARK: GetMaximum
+    // MARK: getMaximumAmountFor()
     /// Used to get maximum amount of expense/income for Chart
     func getMaximumAmountFor(_ timePeriod: TimePeriod, _ entryType: EntryType) -> Double {
         
@@ -187,22 +174,15 @@ final class ListViewModel: ObservableObject {
         return maxValue?.amount ?? 0
     }
     
-    // MARK: GetAll
+    // MARK: getAll()
     /// Getting all expenses/incomes
     func getAll(_ entryType: EntryType) -> [EntryViewModel] {
         let expenses = CoreDataManager.shared.getAll(entryType)
         return expenses.map(EntryViewModel.init)
     }
     
-    // MARK: GetCurrentAmount -> [String]
+    // MARK: getCurrentWeekAmountAsArray()
     /// Getting amount of expenses/incomes from whole week as String
-    func makeArray(doubleValue: Double) -> [String] {
-        var totalString = ""
-        totalString = String(format: "%.2f", doubleValue)
-        let stringArray = totalString.components(separatedBy: ".")
-        return stringArray
-    }
-    
     func getCurrentWeekAmountAsArray(_ entryType: EntryType) -> [String] {
         var total = 0.0
         for expense in getAllForCurrent(.week, entryType) {
@@ -211,8 +191,16 @@ final class ListViewModel: ObservableObject {
         return makeArray(doubleValue: total)
     }
     
-    // MARK: GetCurrentAmount -> Double
-    /// Getting amount of expenses/incomes from whole week/month/year as Double
+    // MARK: makeArray()
+    func makeArray(doubleValue: Double) -> [String] {
+        var totalString = ""
+        totalString = String(format: "%.2f", doubleValue)
+        let stringArray = totalString.components(separatedBy: ".")
+        return stringArray
+    }
+    
+    // MARK: getCurrentAmountFor()
+    /// Getting amount of expenses/incomes from current week/month/year as Double
     func getCurrentAmountFor(_ time: TimePeriod, _ entryType: EntryType) -> Double {
         
         var total = 0.00
@@ -222,19 +210,18 @@ final class ListViewModel: ObservableObject {
         return total
     }
     
-    // MARK: GetCurrentAmount -> Double
-    /// Getting amount of expenses/incomes from whole week as Double
+    // MARK: getLastAmountFor()
+    /// Getting amount of expenses/incomes from last week/month/year as Double
     func getLastAmountFor(_ time: TimePeriod,_ entryType: EntryType) -> Double {
         
         var total = 0.00
-        
         for entry in getAllForLast(time, entryType) {
             total += entry.amount
         }
         return total
     }
     
-    // MARK: GetAverage
+    // MARK: getAverageLine()
     /// Used to get average amount of expenses/incomes from whole week/month/year
     func getAverageLine(_ time: TimePeriod, _ chartType: Double) -> Double {
         switch time {
@@ -247,6 +234,7 @@ final class ListViewModel: ObservableObject {
         }
     }
     
+    // MARK: groupEntryByDay()
     /// Grouping entries to better representate data in ListView
     func groupEntryByDay() -> EntryGroup {
         

@@ -16,12 +16,14 @@ class EmojiTextField: UITextField {
 
 struct AddCategoryView: View {
     
+    // MARK: State variables
     @StateObject private var vm = CategoriesViewModel()
     @Environment(\.dismiss) var dismiss
 
     let category: Categories
     let textLimit = 10
     
+    // MARK: body
     var body: some View {
         NavigationView {
             VStack(alignment: .center) {
@@ -70,6 +72,8 @@ struct AddCategoryView: View {
         }
     }
     
+    // MARK: Functions
+    // MARK: limitText()
     /// Function to keep text length in limits
     func limitText(_ upper: Int) {
         if vm.emoji.count > upper {

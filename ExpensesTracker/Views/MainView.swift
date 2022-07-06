@@ -10,6 +10,7 @@ import SwiftUI
 struct MainView: View {
     @State private var selectedTab = 0
     
+    // MARK: body
     var body: some View {
         TabView(selection: $selectedTab) {
             ListView()

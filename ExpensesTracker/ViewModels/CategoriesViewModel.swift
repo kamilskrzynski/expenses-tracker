@@ -27,6 +27,7 @@ class CategoriesViewModel: ObservableObject {
     @Published var selectedExpense: Category = Category(emoji: "☕️", name: "Coffee")
     @Published var selectedType: String = "expense"
     
+    // MARK: selectedDateString
     /// Custom computed property to manipulate showed date
     var selectedDateString: String {
         if Calendar.current.isDateInToday(selectedDate) {
@@ -41,8 +42,8 @@ class CategoriesViewModel: ObservableObject {
             return currentDateString
         }
     }
-    
-    // MARK: Create
+    // MARK: Functions
+    // MARK: createExpense()
     /// Creating new entry and saving to CoreData
     func createExpense() {
         let manager = CoreDataManager.shared
@@ -58,7 +59,7 @@ class CategoriesViewModel: ObservableObject {
         manager.save()
     }
     
-    // MARK: SaveInitial
+    // MARK: saveInitialExpenses()
     /// Creating initial expense categories and saving to UserDefaults
     func saveInitialExpenses() {
         var expensesArray = [Category]()
@@ -89,6 +90,7 @@ class CategoriesViewModel: ObservableObject {
         UserDefaults.standard.set(expenses, forKey: "expensesCategories")
     }
     
+    // MARK: saveInitialIncomes()
     /// Creating initial income categories and saving to UserDefaults
     func saveInitialIncomes() {
         var incomesArray = [Category]()
@@ -101,6 +103,7 @@ class CategoriesViewModel: ObservableObject {
         UserDefaults.standard.set(incomes, forKey: "incomesCategories")
     }
     
+    // MARK: saveInitialAccounts()
     /// Creating initial account categories and saving to UserDefaults
     func saveInitialAccounts() {
         var accountsArray = [Category]()
@@ -112,7 +115,7 @@ class CategoriesViewModel: ObservableObject {
         UserDefaults.standard.set(accounts, forKey: "accountsCategories")
     }
     
-    // MARK: Get
+    // MARK: getExpenses()
     /// Getting expense categories from UserDefaults
     func getExpenses() -> [Category] {
         let expenses = UserDefaults.standard.data(forKey: "expensesCategories")
@@ -120,6 +123,7 @@ class CategoriesViewModel: ObservableObject {
         return expensesArray
     }
     
+    // MARK: getIncomes()
     /// Getting income categories from UserDefaults
     func getIncomes() -> [Category] {
         let incomes = UserDefaults.standard.data(forKey: "incomesCategories")
@@ -127,6 +131,7 @@ class CategoriesViewModel: ObservableObject {
         return incomesArray
     }
     
+    // MARK: getAccounts()
     /// Getting account categories from UserDefaults
     func getAccounts() -> [Category] {
         let accounts = UserDefaults.standard.data(forKey: "accountsCategories")
@@ -134,7 +139,7 @@ class CategoriesViewModel: ObservableObject {
         return accountsArray
     }
     
-    // MARK: Add
+    // MARK: add()
     /// Adding new expense/income/account category
     func add(category: Categories) {
         switch category {
@@ -162,7 +167,8 @@ class CategoriesViewModel: ObservableObject {
         }
     }
     
-    // MARK: Tapping buttons
+    // MARK: buttonTapped()
+    /// Specific actions for custom keyboard buttons
     func buttonTapped(button: KeyboardNumber) {
         switch button {
         case .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:

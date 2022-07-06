@@ -9,11 +9,11 @@ import SwiftUI
 
 struct ListView: View {
     
-    // MARK: State properies
+    // MARK: State variables
     @State private var isSheetShowed: Bool = false
     @StateObject private var vm = ListViewModel()
     
-    // MARK: Body
+    // MARK: body
     var body: some View {
         NavigationView {
             VStack {
@@ -44,7 +44,7 @@ struct ListView: View {
         }
     }
     
-    // MARK: ToolbarLeading
+    // MARK: toolbarLeading
     var toolbarLeading: some View {
         Button {
             
@@ -55,7 +55,7 @@ struct ListView: View {
         }
     }
     
-    // MARK: ToolbarTrailing
+    // MARK: toolbarTrailing
     var toolbarTrailing: some View {
         Button {
             isSheetShowed = true
@@ -66,7 +66,7 @@ struct ListView: View {
         }
     }
     
-    // MARK: EntriesList
+    // MARK: entriesList
     var entriesList: some View {
         ForEach(Array(vm.groupEntryByDay()), id: \.key) { day, entries in
             Section {
@@ -81,7 +81,7 @@ struct ListView: View {
         }
     }
 
-    // MARK: Header
+    // MARK: header
     var header: some View {
         VStack {
             Text("Spent this week")
@@ -108,7 +108,7 @@ struct ListView: View {
         }
     }
     
-    // MARK: DragImage
+    // MARK: dragImage
     var dragImage: some View {
         VStack {
             Spacer()

@@ -9,10 +9,12 @@ import SwiftUI
 
 struct InsightsView: View {
     
+    // MARK: State variables
     @StateObject private var vm = ListViewModel()
     @State private var selectedOverviewCategory: EntryType = .expenses
     @State private var timeSelection: TimePeriod = .week
     
+    // MARK: body
     var body: some View {
         NavigationView {
             VStack {
@@ -56,6 +58,7 @@ struct InsightsView: View {
         }
     }
     
+    // MARK: insightsImage
     var insightsImage: some View {
         VStack {
             Spacer()
@@ -65,6 +68,7 @@ struct InsightsView: View {
         }
     }
     
+    // MARK: entries
     var entries: some View {
         ForEach(vm.getKeyValues(timeSelection, selectedOverviewCategory), id: \.self) { key in
             let keyValues = key.components(separatedBy: "/")
@@ -76,11 +80,11 @@ struct InsightsView: View {
                     HStack {
                         Text(keyValues[1])
                             .font(.system(size: 18, weight: .medium))
-                        Text("x\(vm.countExpensesForCategory(timeSelection, selectedOverviewCategory, keyValues[1]))")
+                        Text("x\(vm.countEntriesForCategory(timeSelection, selectedOverviewCategory, keyValues[1]))")
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.secondary)
                         Spacer()
-                        Text("\(vm.countExpensesAmountForCategory(timeSelection, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
+                        Text("\(vm.countEntriesAmountForCategory(timeSelection, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundColor(.primary)
                     }
@@ -93,12 +97,7 @@ struct InsightsView: View {
         .listRowBackground(Color.clear)
     }
     
-    // MARK: Navigation Title
-    func getNavTitle() -> String {
-            return "\(vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory)) zł"
-    }
-    
-    // MARK: Header
+    // MARK: header
     var header: some View {
         HStack {
                 Text(selectedOverviewCategory == .expenses ? " Total spent this \(timeSelection.rawValue.lowercased())" : " Total revenue this \(timeSelection.rawValue.lowercased())")
@@ -114,7 +113,7 @@ struct InsightsView: View {
         }
     }
     
-    // MARK: Toolbar
+    // MARK: toolbarItems
     var toolbarItems: some View {
         Menu {
             Button {
@@ -144,7 +143,7 @@ struct InsightsView: View {
         }
     }
     
-    // MARK: Chart Time Frames
+    // MARK: chartTimeFrames
     var chartTimeFrames: some View {
         HStack {
             ForEach(TimePeriod.allCases, id: \.rawValue) { timeFrame in
@@ -168,6 +167,7 @@ struct InsightsView: View {
         }
     }
     
+    // MARK: weekChart
     var weekChart: some View {
         ZStack(alignment: .bottom) {
             HStack(spacing: 13) {
@@ -201,6 +201,7 @@ struct InsightsView: View {
         }
     }
     
+    // MARK: monthChart
     var monthChart: some View {
         ZStack(alignment: .bottom) {
             HStack(spacing: 3) {
@@ -245,6 +246,7 @@ struct InsightsView: View {
         }
     }
     
+    // MARK: yearChart
     var yearChart: some View {
         ZStack(alignment: .bottom) {
             HStack(spacing: 8) {
@@ -278,6 +280,7 @@ struct InsightsView: View {
         }
     }
     
+    // MARK: chartValues
     var chartValues: some View {
         VStack(alignment: .leading) {
             Text(String(format: "%.2f", vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory)))
@@ -289,6 +292,7 @@ struct InsightsView: View {
         .foregroundColor(.secondary)
     }
     
+    // MARK: averageLine
     var averageLine: some View {
         HStack {
             Line()
@@ -298,14 +302,22 @@ struct InsightsView: View {
             Text("\(vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory)), specifier: "%.2f")")
                 .font(.system(size: 16, weight: .medium))
         }
-        .offset(y: vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory) == 0 ? -13 : -13-((vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory))/vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory))*150))
+        .offset(y: getOffset())
     }
     
-    func refreshView() {
-        // TODO
+    // MARK: Functions
+    // MARK: getOffset()
+    func getOffset() -> CGFloat {
+        return vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory) == 0 ? -13 : -13-((vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory))/vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory))*150)
+    }
+    
+    // MARK: getNavTitle()
+    func getNavTitle() -> String {
+            return "\(vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory)) zł"
     }
 }
 
+// MARK: Line
 struct Line: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()

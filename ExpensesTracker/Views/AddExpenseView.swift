@@ -14,6 +14,7 @@ enum CustomSheet {
 
 struct AddExpenseView: View {
     
+    // MARK: State variables
     @Environment(\.dismiss) var dismiss
     @Namespace private var animation
     
@@ -37,6 +38,7 @@ struct AddExpenseView: View {
         GridItem(.flexible())
     ]
     
+    // MARK: body
     var body: some View {
         NavigationView {
             ZStack(alignment: .bottom) {
@@ -127,7 +129,7 @@ struct AddExpenseView: View {
         }
     }
     
-    // MARK: Toolbar Button
+    // MARK: toolbarButton
     var toolbarButton: some View {
         Button {
             dismiss()
@@ -138,7 +140,7 @@ struct AddExpenseView: View {
         }
     }
     
-    // MARK: Date and notes
+    // MARK: dateAndNotes
     var dateAndNotes: some View {
         HStack {
             Button {
@@ -161,7 +163,7 @@ struct AddExpenseView: View {
         .padding(.horizontal)
     }
     
-    // MARK: Accounts and Save Button
+    // MARK: accountsAndSaveButton
     var accountsAndSaveButton: some View {
         HStack {
             Button {
@@ -203,7 +205,7 @@ struct AddExpenseView: View {
         .padding(.horizontal)
     }
     
-    // MARK: Header
+    // MARK: header
     var header: some View {
         HStack {
             Text(vm.showedAmount)
@@ -227,7 +229,8 @@ struct AddExpenseView: View {
         .frame(height: 80)
     }
     
-    // MARK: DatePicker Modal
+    // MARK: Custom modals
+    // MARK: datePicker
     var datePicker: some View {
         VStack {
             DatePicker("", selection: $vm.selectedDate, in: ...Date(), displayedComponents: .date)
@@ -245,7 +248,7 @@ struct AddExpenseView: View {
         .padding(.horizontal, 5)
     }
     
-    // MARK: Expenses Modal
+    // MARK: expenses
     var expenses: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 20) {
@@ -377,7 +380,7 @@ struct AddExpenseView: View {
         .padding(.horizontal, 5)
     }
     
-    // MARK: Accounts Modal
+    // MARK: accounts
     var accounts: some View {
         VStack(spacing: 20) {
             Text("ACCOUNTS")
@@ -426,7 +429,7 @@ struct AddExpenseView: View {
         .padding(.horizontal, 5)
     }
     
-    // MARK: Custom keyboard
+    // MARK: keyboard
     var keyboard: some View {
         VStack(spacing: 20) {
             ForEach(keyboardButton, id: \.self) { row in
