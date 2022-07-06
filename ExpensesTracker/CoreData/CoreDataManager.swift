@@ -52,95 +52,122 @@ class CoreDataManager {
         return fetch(fetchRequest: fetchRequest)
     }
     
-    /// Getting all expenses/incomes for current Week from CoreData
-    func getAllForCurrentWeek(entryType: EntryType) -> [Entry] {
-        
+    /// Getting all expenses/incomes for current Week/Month/Year from CoreData
+    func getAllForCurrent(_ timePeriod: TimePeriod, _ entryType: EntryType) -> [Entry] {
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        let fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfWeek() as NSDate)
-        let toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfNextWeek() as NSDate)
+        var fromPredicate = NSPredicate()
+        var toPredicate = NSPredicate()
+        let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
+        let incomePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
         
-        switch entryType {
-        case .expenses:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
+        switch timePeriod {
+        case .week:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfWeek() as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfNextWeek() as NSDate)
             
-            return fetch(fetchRequest: fetchRequest)
-        case .incomes:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
+            switch entryType {
+            case .expenses:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            case .incomes:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, incomePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            }
+        case .month:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfMonth() as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfNextMonth() as NSDate)
             
-            return fetch(fetchRequest: fetchRequest)
+            switch entryType {
+            case .expenses:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            case .incomes:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, incomePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            }
+        case .year:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfYear() as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfNextYear() as NSDate)
+            
+            switch entryType {
+            case .expenses:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            case .incomes:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, incomePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            }
         }
     }
     
-    /// Getting all expenses/incomes for current Week from CoreData
-    func getAllForCurrentMonth(entryType: EntryType) -> [Entry] {
-        
+    /// Getting all expenses/incomes for last Week/Month/Year from CoreData
+    func getAllForLast(_ timePeriod: TimePeriod, _ entryType: EntryType) -> [Entry] {
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        let fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfMonth() as NSDate)
-        let toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfNextMonth() as NSDate)
+        let incomePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
+        let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
+        var fromPredicate = NSPredicate()
+        var toPredicate = NSPredicate()
         
-        switch entryType {
-        case .expenses:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
+        switch timePeriod {
+        case .week:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfLastWeek() as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfWeek() as NSDate)
             
-            return fetch(fetchRequest: fetchRequest)
-        case .incomes:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
+            switch entryType {
+            case .expenses:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            case .incomes:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, incomePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            }
+        case .month:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfLastMonth() as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfMonth() as NSDate)
+            switch entryType {
+            case .expenses:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            case .incomes:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, incomePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            }
+        case .year:
+            fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfLastYear() as NSDate)
+            toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfYear() as NSDate)
             
-            return fetch(fetchRequest: fetchRequest)
-        }
-    }
-    
-    /// Getting all expenses/incomes for current Week from CoreData
-    func getAllForCurrentYear(entryType: EntryType) -> [Entry] {
-        
-        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        let fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfYear() as NSDate)
-        let toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfNextYear() as NSDate)
-        
-        switch entryType {
-        case .expenses:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
-            
-            return fetch(fetchRequest: fetchRequest)
-        case .incomes:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
-            
-            return fetch(fetchRequest: fetchRequest)
-        }
-    }
-    
-    /// Getting all expenses/incomes for last Week from CoreData
-    func getAllForLastWeek(entryType: EntryType) -> [Entry] {
-        
-        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        let fromPredicate = NSPredicate(format: "%K >= %@", #keyPath(Entry.dateCreated), Date().startOfLastWeek() as NSDate)
-        let toPredicate = NSPredicate(format: "%K < %@", #keyPath(Entry.dateCreated), Date().startOfWeek() as NSDate)
-        
-        switch entryType {
-        case .expenses:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
-            
-            return fetch(fetchRequest: fetchRequest)
-        case .incomes:
-            let expensePredicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
-            let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
-            fetchRequest.predicate = datePredicate
-            
-            return fetch(fetchRequest: fetchRequest)
+            switch entryType {
+            case .expenses:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, expensePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            case .incomes:
+                let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate, incomePredicate])
+                fetchRequest.predicate = datePredicate
+                
+                return fetch(fetchRequest: fetchRequest)
+            }
         }
     }
     

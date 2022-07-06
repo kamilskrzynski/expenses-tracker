@@ -32,24 +32,13 @@ struct InsightsView: View {
                             }
                             
                             chartTimeFrames
-                                .onAppear {
-                                    vm.groupEntriesFor(timeSelection, selectedOverviewCategory)
-                                }
                                 .padding(.top, 15)
                             Spacer()
                                 .frame(height: 30)
                             Divider()
-                            switch timeSelection {
-                            case .week:
-                                weeklyEntries
+                                entries
                                     .padding(.trailing)
-                            case .month:
-                                monthlyEntries
-                                    .padding(.trailing)
-                            case .year:
-                                yearlyEntries
-                                    .padding(.trailing)
-                            }
+
                         }
                         .padding(.leading)
                     }
@@ -76,36 +65,8 @@ struct InsightsView: View {
         }
     }
     
-    var weeklyEntries: some View {
-        ForEach(vm.groupedCategoriesKeys, id: \.self) { key in
-            let keyValues = key.components(separatedBy: "/")
-            HStack {
-                Text(keyValues[0])
-                    .offset(y: -5)
-                    .font(.system(size: 30))
-                VStack(spacing: 15) {
-                    HStack {
-                        Text(keyValues[1])
-                            .font(.system(size: 18, weight: .medium))
-                        Text("x\(vm.countExpensesForCategory(.week, selectedOverviewCategory, keyValues[1]))")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text("\(vm.countExpensesAmountForCategory(.week, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Divider()
-                }
-            }
-            .padding(.leading)
-        }
-        .listRowBackground(Color.clear)
-    }
-    
-    var monthlyEntries: some View {
-        ForEach(vm.groupedCategoriesKeys, id: \.self) { key in
+    var entries: some View {
+        ForEach(vm.getKeyValues(timeSelection, selectedOverviewCategory), id: \.self) { key in
             let keyValues = key.components(separatedBy: "/")
             HStack {
                 Text(keyValues[0])
@@ -132,35 +93,6 @@ struct InsightsView: View {
         .listRowBackground(Color.clear)
     }
     
-    
-    var yearlyEntries: some View {
-        ForEach(vm.groupedCategoriesKeys, id: \.self) { key in
-            let keyValues = key.components(separatedBy: "/")
-            HStack {
-                Text(keyValues[0])
-                    .offset(y: -5)
-                    .font(.system(size: 30))
-                VStack(spacing: 15) {
-                    HStack {
-                        Text(keyValues[1])
-                            .font(.system(size: 18, weight: .medium))
-                        Text("x\(vm.countExpensesForCategory(.year, selectedOverviewCategory, keyValues[1]))")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text("\(vm.countExpensesAmountForCategory(.year, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Divider()
-                }
-            }
-            .padding(.leading)
-        }
-        .listRowBackground(Color.clear)
-    }
-    
     // MARK: Navigation Title
     func getNavTitle() -> String {
             return "\(vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory)) zł"
@@ -175,7 +107,7 @@ struct InsightsView: View {
                 Image(systemName: vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection , selectedOverviewCategory) ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory) ? .green : .red)
-                Text("\(vm.compare(entryType: selectedOverviewCategory))%")
+                Text("\(vm.compare(timeSelection, selectedOverviewCategory))%")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(vm.getLastAmountFor(timeSelection, selectedOverviewCategory) > vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory) ? .green : .red)
                 Spacer()
@@ -187,7 +119,6 @@ struct InsightsView: View {
         Menu {
             Button {
                 selectedOverviewCategory = .expenses
-                vm.groupEntriesFor(timeSelection, .expenses)
             } label: {
                 HStack {
                     if selectedOverviewCategory == .expenses {
@@ -198,7 +129,6 @@ struct InsightsView: View {
             }
             Button {
                 selectedOverviewCategory = .incomes
-                vm.groupEntriesFor(timeSelection,.incomes)
             } label: {
                 HStack {
                     if selectedOverviewCategory == .incomes {
@@ -221,10 +151,8 @@ struct InsightsView: View {
                 Button {
                     DispatchQueue.main.async {
                         timeSelection = timeFrame
-                        vm.groupEntriesFor(timeFrame, selectedOverviewCategory)
                         vm.getMaximumAmountFor(timeFrame, selectedOverviewCategory)
                         vm.getAllBy(timeFrame, selectedOverviewCategory)
-                        vm.getAllForCurrent(timeFrame, selectedOverviewCategory)
                     }
                 } label: {
                     Text(timeFrame.rawValue.firstUppercased)
