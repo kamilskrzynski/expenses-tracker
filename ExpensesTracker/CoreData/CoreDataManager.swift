@@ -197,19 +197,9 @@ class CoreDataManager {
     }
     
     /// Getting all expenses from CoreData
-    func getAllExpenses() -> [Entry] {
-        
+    func getAll(_ entryType: EntryType) -> [Entry] {
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "expense" as String)
-        
-        return fetch(fetchRequest: fetchRequest)
-    }
-    
-    /// Getting all incomes from CoreData
-    func getAllIncomes() -> [Entry] {
-        
-        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), "income" as String)
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(Entry.type), entryType.type as String)
         
         return fetch(fetchRequest: fetchRequest)
     }

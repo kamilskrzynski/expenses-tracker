@@ -41,10 +41,6 @@ final class ListViewModel: ObservableObject {
     // MARK: Note
     /// This mess needs to be cleaned, for now it's just battle ground for testing
     
-    @Published var expenses = [EntryViewModel]()
-    @Published var incomes = [EntryViewModel]()
-    @Published var allEntries = [EntryViewModel]()
-    
     @Published var allEntriesFromDay = [EntryViewModel]()
     
     @Published var maximumValue: Double = 0.0
@@ -52,18 +48,18 @@ final class ListViewModel: ObservableObject {
     
     // MARK: RefreshView
     func refreshView() {
-        getAll(entryType: .expenses)
-        getAll(entryType: .incomes)
-        getAllEntries()
+        //        getAll(entryType: .expenses)
+        //        getAll(entryType: .incomes)
+        //        getAllEntries()
         getMaximumAmountFor(.week, .expenses)
         getMaximumAmountFor(.week, .incomes)
     }
     
     /// Getting all nessesary things from CoreData
     init() {
-        getAllEntries()
-        getAll(entryType: .expenses)
-        getAll(entryType: .incomes)
+        //        getAllEntries()
+        //        getAll(entryType: .expenses)
+        //        getAll(entryType: .incomes)
         getMaximumAmountFor(.week, .expenses)
         getMaximumAmountFor(.week, .incomes)
     }
@@ -107,7 +103,7 @@ final class ListViewModel: ObservableObject {
     func getSpendingsFromDay(day: Date) -> Double {
         
         var dailySpendings: Double = 0
-        for expense in expenses {
+        for expense in getAll(.expenses) {
             if Calendar.current.isDate(expense.dateCreated, inSameDayAs: day) {
                 dailySpendings += expense.amount
             }
@@ -127,11 +123,9 @@ final class ListViewModel: ObservableObject {
     }
     
     /// Getting all entries
-    func getAllEntries() {
+    func getAllEntries() -> [EntryViewModel] {
         let entries = CoreDataManager.shared.getAllEntries()
-        DispatchQueue.main.async {
-            self.allEntries = entries.map(EntryViewModel.init)
-        }
+            return entries.map(EntryViewModel.init)
     }
     
     // MARK: GetAllForCurrentWeek
@@ -185,32 +179,21 @@ final class ListViewModel: ObservableObject {
     
     // MARK: GetMaximum
     /// Used to get maximum amount of expense/income for Chart
-    func getMaximumAmountFor(_ timePeriod: TimePeriod, _ entryType: EntryType) {
+    func getMaximumAmountFor(_ timePeriod: TimePeriod, _ entryType: EntryType) -> Double {
         
         let maxValue = getAllBy(timePeriod, entryType).max(by: {(chartData1, chartData2) -> Bool in
             return chartData1.amount < chartData2.amount
         })
-        self.maximumValue = maxValue?.amount ?? 0
-        self.maximumValueAsString = String(format: "%.2f", maximumValue)
-        
+        return maxValue?.amount ?? 0
     }
     
     // MARK: GetAll
     /// Getting all expenses/incomes
-    func getAll(entryType: EntryType) {
-        switch entryType {
-        case .expenses:
-            let expenses = CoreDataManager.shared.getAllExpenses()
-            DispatchQueue.main.async {
-                self.expenses = expenses.map(EntryViewModel.init)
-            }
-        case .incomes:
-            let incomes = CoreDataManager.shared.getAllIncomes()
-            DispatchQueue.main.async {
-                self.incomes = incomes.map(EntryViewModel.init)
-            }
-        }
+    func getAll(_ entryType: EntryType) -> [EntryViewModel] {
+        let expenses = CoreDataManager.shared.getAll(entryType)
+        return expenses.map(EntryViewModel.init)
     }
+    
     // MARK: GetCurrentAmount -> [String]
     /// Getting amount of expenses/incomes from whole week as String
     func makeArray(doubleValue: Double) -> [String] {
@@ -267,8 +250,8 @@ final class ListViewModel: ObservableObject {
     /// Grouping entries to better representate data in ListView
     func groupEntryByDay() -> EntryGroup {
         
-        guard !allEntries.isEmpty else { return [:] }
-        let sortedEnteries = allEntries.sorted {
+        guard !self.getAllEntries().isEmpty else { return [:] }
+        let sortedEnteries = self.getAllEntries().sorted {
             $0.dateCreated > $1.dateCreated
         }
         let groupedEntries = EntryGroup(grouping: sortedEnteries) { $0.day }

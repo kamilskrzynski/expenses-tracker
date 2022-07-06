@@ -17,7 +17,7 @@ struct ListView: View {
     var body: some View {
         NavigationView {
             VStack {
-                if vm.expenses.isEmpty {
+                if vm.getAllEntries().isEmpty {
                     dragImage
                 } else {
                     ScrollView(showsIndicators: false) {

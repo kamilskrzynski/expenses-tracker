@@ -16,7 +16,7 @@ struct InsightsView: View {
     var body: some View {
         NavigationView {
             VStack {
-                if vm.expenses.isEmpty {
+                if vm.getAll(selectedOverviewCategory).isEmpty {
                     insightsImage
                 } else {
                     ScrollView {
@@ -151,7 +151,6 @@ struct InsightsView: View {
                 Button {
                     DispatchQueue.main.async {
                         timeSelection = timeFrame
-                        vm.getMaximumAmountFor(timeFrame, selectedOverviewCategory)
                     }
                 } label: {
                     Text(timeFrame.rawValue.firstUppercased)
@@ -185,7 +184,7 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/7,
-                                    height: vm.maximumValue == 0 ? 0 : (timeInterval.amount/vm.maximumValue)*150)
+                                    height: vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory) == 0 ? 0 : (timeInterval.amount/vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory))*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
                         Text(timeInterval.timeInterval)
@@ -223,7 +222,7 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/31,
-                                    height: vm.maximumValue == 0 ? 0 : (timeInterval.amount/vm.maximumValue)*150)
+                                    height: vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory) == 0 ? 0 : (timeInterval.amount/vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory))*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
                         if timeInterval.timeInterval == "1" || timeInterval.timeInterval == "7" || timeInterval.timeInterval == "14" || timeInterval.timeInterval == "21" || timeInterval.timeInterval == "28" {
@@ -262,7 +261,7 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/12,
-                                    height: vm.maximumValue == 0 ? 0 : (timeInterval.amount/vm.maximumValue)*150)
+                                    height: vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory) == 0 ? 0 : (timeInterval.amount/vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory))*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
                         Text(timeInterval.timeInterval.prefix(1))
@@ -281,7 +280,7 @@ struct InsightsView: View {
     
     var chartValues: some View {
         VStack(alignment: .leading) {
-            Text(vm.maximumValueAsString)
+            Text(String(format: "%.2f", vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory)))
             Spacer()
             Text("0")
                 .offset(y: -25)
@@ -299,7 +298,7 @@ struct InsightsView: View {
             Text("\(vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory)), specifier: "%.2f")")
                 .font(.system(size: 16, weight: .medium))
         }
-        .offset(y: vm.maximumValue == 0 ? -13 : -13-((vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory))/vm.maximumValue)*150))
+        .offset(y: vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory) == 0 ? -13 : -13-((vm.getAverageLine(timeSelection, vm.getCurrentAmountFor(timeSelection, selectedOverviewCategory))/vm.getMaximumAmountFor(timeSelection, selectedOverviewCategory))*150))
     }
     
     func refreshView() {
