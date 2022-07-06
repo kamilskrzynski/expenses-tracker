@@ -76,11 +76,11 @@ struct InsightsView: View {
                     HStack {
                         Text(keyValues[1])
                             .font(.system(size: 18, weight: .medium))
-                        Text("x\(vm.countExpensesForCategory(.month, selectedOverviewCategory, keyValues[1]))")
+                        Text("x\(vm.countExpensesForCategory(timeSelection, selectedOverviewCategory, keyValues[1]))")
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.secondary)
                         Spacer()
-                        Text("\(vm.countExpensesAmountForCategory(.month, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
+                        Text("\(vm.countExpensesAmountForCategory(timeSelection, selectedOverviewCategory, keyValues[1]), format: .currency(code: "PLN"))")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundColor(.primary)
                     }
@@ -152,7 +152,6 @@ struct InsightsView: View {
                     DispatchQueue.main.async {
                         timeSelection = timeFrame
                         vm.getMaximumAmountFor(timeFrame, selectedOverviewCategory)
-                        vm.getAllBy(timeFrame, selectedOverviewCategory)
                     }
                 } label: {
                     Text(timeFrame.rawValue.firstUppercased)
@@ -173,7 +172,7 @@ struct InsightsView: View {
     var weekChart: some View {
         ZStack(alignment: .bottom) {
             HStack(spacing: 13) {
-                ForEach(selectedOverviewCategory == .expenses ? vm.expensesWeekly : vm.incomesWeekly, id: \.self) { day in
+                ForEach(vm.getAllBy(timeSelection, selectedOverviewCategory), id: \.self) { timeInterval in
                     VStack {
                         ZStack(alignment: .bottom) {
                             
@@ -186,10 +185,10 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/7,
-                                    height: vm.maximumValue == 0 ? 0 : (day.amount/vm.maximumValue)*150)
+                                    height: vm.maximumValue == 0 ? 0 : (timeInterval.amount/vm.maximumValue)*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
-                        Text(day.day)
+                        Text(timeInterval.timeInterval)
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.secondary)
                     }
@@ -206,7 +205,7 @@ struct InsightsView: View {
     var monthChart: some View {
         ZStack(alignment: .bottom) {
             HStack(spacing: 3) {
-                ForEach(selectedOverviewCategory == .expenses ? vm.expensesMonthly : vm.incomesMonthly, id: \.self) { day in
+                ForEach(vm.getAllBy(timeSelection, selectedOverviewCategory), id: \.self) { timeInterval in
                     VStack {
                         ZStack(alignment: .bottom) {
                             RoundedRectangle(cornerRadius: 5)
@@ -224,11 +223,11 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/31,
-                                    height: vm.maximumValue == 0 ? 0 : (day.amount/vm.maximumValue)*150)
+                                    height: vm.maximumValue == 0 ? 0 : (timeInterval.amount/vm.maximumValue)*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
-                        if day.day == "1" || day.day == "7" || day.day == "14" || day.day == "21" || day.day == "28" {
-                            Text(day.day)
+                        if timeInterval.timeInterval == "1" || timeInterval.timeInterval == "7" || timeInterval.timeInterval == "14" || timeInterval.timeInterval == "21" || timeInterval.timeInterval == "28" {
+                            Text(timeInterval.timeInterval)
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(.secondary)
                         } else {
@@ -250,7 +249,7 @@ struct InsightsView: View {
     var yearChart: some View {
         ZStack(alignment: .bottom) {
             HStack(spacing: 8) {
-                ForEach(selectedOverviewCategory == .expenses ? vm.expensesYearly : vm.incomesYearly, id: \.self) { month in
+                ForEach(vm.getAllBy(timeSelection, selectedOverviewCategory), id: \.self) { timeInterval in
                     VStack {
                         ZStack(alignment: .bottom) {
                             
@@ -263,10 +262,10 @@ struct InsightsView: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .frame(
                                     width: (UIScreen.main.bounds.width - 200)/12,
-                                    height: vm.maximumValue == 0 ? 0 : (month.amount/vm.maximumValue)*150)
+                                    height: vm.maximumValue == 0 ? 0 : (timeInterval.amount/vm.maximumValue)*150)
                                 .foregroundColor(selectedOverviewCategory == .expenses ? .primary : .appChartGreen)
                         }
-                        Text(month.month.prefix(1))
+                        Text(timeInterval.timeInterval.prefix(1))
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.secondary)
                     }

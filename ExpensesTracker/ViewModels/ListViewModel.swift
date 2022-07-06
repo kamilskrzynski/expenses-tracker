@@ -11,6 +11,16 @@ import Collections
 
 enum EntryType {
     case expenses, incomes
+    
+    var type: String {
+        switch self {
+        case .expenses:
+            return "expense"
+        case .incomes:
+            return "income"
+        }
+    }
+    
 }
 
 enum TimePeriod: String, CaseIterable {
@@ -37,13 +47,6 @@ final class ListViewModel: ObservableObject {
     
     @Published var allEntriesFromDay = [EntryViewModel]()
     
-    @Published var expensesWeekly = [WeekChartData]()
-    @Published var incomesWeekly = [WeekChartData]()
-    @Published var expensesMonthly = [MonthChartData]()
-    @Published var incomesMonthly = [MonthChartData]()
-    @Published var expensesYearly = [YearChartData]()
-    @Published var incomesYearly = [YearChartData]()
-    
     @Published var maximumValue: Double = 0.0
     @Published var maximumValueAsString: String = ""
     
@@ -63,12 +66,6 @@ final class ListViewModel: ObservableObject {
         getAll(entryType: .incomes)
         getMaximumAmountFor(.week, .expenses)
         getMaximumAmountFor(.week, .incomes)
-        getAllBy(.week, .expenses)
-        getAllBy(.week, .incomes)
-        getAllBy(.month, .expenses)
-        getAllBy(.month, .incomes)
-        getAllBy(.year, .expenses)
-        getAllBy(.year, .incomes)
     }
     
     /// Getting String representation of day
@@ -157,117 +154,45 @@ final class ListViewModel: ObservableObject {
     
     //MARK: GetAllBy
     /// Used to get all expenses/incomes for current week/month/year by day/month
-    func getAllBy(_ timePeriod: TimePeriod, _ entryType: EntryType) {
+    func getAllBy(_ timePeriod: TimePeriod, _ entryType: EntryType) -> [ChartData] {
         
         let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         let daysOfMonth = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
         let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-        
+        var chartValues = [ChartData]()
         switch timePeriod {
         case .week:
-            switch entryType {
-            case .expenses:
-                expensesWeekly = []
-                for day in days {
-                    let entries = CoreDataManager.shared.getAllBy(.week, "expense", by: days.firstIndex(of: day)!)
-                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    expensesWeekly.append(chartData)
-                }
-            case .incomes:
-                incomesWeekly = []
-                for day in days {
-                    let entries = CoreDataManager.shared.getAllBy(.week, "income", by: days.firstIndex(of: day)!)
-                    let chartData = WeekChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    incomesWeekly.append(chartData)
-                }
+            for day in days {
+                let entries = CoreDataManager.shared.getAllBy(.week, entryType.type, by: days.firstIndex(of: day)!)
+                let chartData = ChartData(timeInterval: day, amount: entries.map { $0.amount }.reduce(0, +))
+                chartValues.append(chartData)
             }
         case .month:
-            switch entryType {
-            case .expenses:
-                expensesMonthly = []
-                for day in daysOfMonth {
-                    let entries = CoreDataManager.shared.getAllBy(.month, "expense", by: daysOfMonth.firstIndex(of: day)!)
-                    let chartData = MonthChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    expensesMonthly.append(chartData)
-                }
-            case .incomes:
-                incomesMonthly = []
-                for day in daysOfMonth {
-                    let entries = CoreDataManager.shared.getAllBy(.month, "income", by: daysOfMonth.firstIndex(of: day)!)
-                    let chartData = MonthChartData(day: day, amount: entries.map { $0.amount }.reduce(0, +))
-                    incomesMonthly.append(chartData)
-                }
+            for day in daysOfMonth {
+                let entries = CoreDataManager.shared.getAllBy(.month, entryType.type, by: daysOfMonth.firstIndex(of: day)!)
+                let chartData = ChartData(timeInterval: day, amount: entries.map { $0.amount }.reduce(0, +))
+                chartValues.append(chartData)
             }
         case .year:
-            switch entryType {
-            case .expenses:
-                expensesYearly = []
-                for month in months {
-                    let entries = CoreDataManager.shared.getAllBy(.year, "expense", by: months.firstIndex(of: month)!)
-                    let chartData = YearChartData(month: month, amount: entries.map { $0.amount }.reduce(0, +))
-                    expensesYearly.append(chartData)
-                }
-            case .incomes:
-                incomesYearly = []
-                for month in months {
-                    let entries = CoreDataManager.shared.getAllBy(.year, "income", by: months.firstIndex(of: month)!)
-                    let chartData = YearChartData(month: month, amount: entries.map { $0.amount }.reduce(0, +))
-                    incomesYearly.append(chartData)
-                }
+            for month in months {
+                let entries = CoreDataManager.shared.getAllBy(.year, entryType.type, by: months.firstIndex(of: month)!)
+                let chartData = ChartData(timeInterval: month, amount: entries.map { $0.amount }.reduce(0, +))
+                chartValues.append(chartData)
             }
         }
+        return chartValues
     }
     
     // MARK: GetMaximum
     /// Used to get maximum amount of expense/income for Chart
     func getMaximumAmountFor(_ timePeriod: TimePeriod, _ entryType: EntryType) {
-        switch timePeriod {
-        case .week:
-            switch entryType {
-            case .expenses:
-                let maxValue = self.expensesWeekly.max(by: {(chartData1, chartData2) -> Bool in
-                    return chartData1.amount < chartData2.amount
-                })
-                self.maximumValue = maxValue?.amount ?? 0
-                self.maximumValueAsString = String(format: "%.2f", maximumValue)
-            case .incomes:
-                let maxValue = self.incomesWeekly.max(by: {(chartData1, chartData2) -> Bool in
-                    return chartData1.amount < chartData2.amount
-                })
-                self.maximumValue = maxValue?.amount ?? 0
-                self.maximumValueAsString = String(format: "%.2f", maximumValue)
-            }
-        case .month:
-            switch entryType {
-            case .expenses:
-                let maxValue = self.expensesMonthly.max(by: {(chartData1, chartData2) -> Bool in
-                    return chartData1.amount < chartData2.amount
-                })
-                self.maximumValue = maxValue?.amount ?? 0
-                self.maximumValueAsString = String(format: "%.2f", maximumValue)
-            case .incomes:
-                let maxValue = self.incomesMonthly.max(by: {(chartData1, chartData2) -> Bool in
-                    return chartData1.amount < chartData2.amount
-                })
-                self.maximumValue = maxValue?.amount ?? 0
-                self.maximumValueAsString = String(format: "%.2f", maximumValue)
-            }
-        case .year:
-            switch entryType {
-            case .expenses:
-                let maxValue = self.expensesYearly.max(by: {(chartData1, chartData2) -> Bool in
-                    return chartData1.amount < chartData2.amount
-                })
-                self.maximumValue = maxValue?.amount ?? 0
-                self.maximumValueAsString = String(format: "%.2f", maximumValue)
-            case .incomes:
-                let maxValue = self.incomesYearly.max(by: {(chartData1, chartData2) -> Bool in
-                    return chartData1.amount < chartData2.amount
-                })
-                self.maximumValue = maxValue?.amount ?? 0
-                self.maximumValueAsString = String(format: "%.2f", maximumValue)
-            }
-        }
+        
+        let maxValue = getAllBy(timePeriod, entryType).max(by: {(chartData1, chartData2) -> Bool in
+            return chartData1.amount < chartData2.amount
+        })
+        self.maximumValue = maxValue?.amount ?? 0
+        self.maximumValueAsString = String(format: "%.2f", maximumValue)
+        
     }
     
     // MARK: GetAll
@@ -297,10 +222,10 @@ final class ListViewModel: ObservableObject {
     
     func getCurrentWeekAmountAsArray(_ entryType: EntryType) -> [String] {
         var total = 0.0
-            for expense in getAllForCurrent(.week, entryType) {
-                total += expense.amount
-            }
-            return makeArray(doubleValue: total)
+        for expense in getAllForCurrent(.week, entryType) {
+            total += expense.amount
+        }
+        return makeArray(doubleValue: total)
     }
     
     // MARK: GetCurrentAmount -> Double

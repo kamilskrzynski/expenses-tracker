@@ -7,20 +7,8 @@
 
 import Foundation
 
-struct WeekChartData: Hashable {
+struct ChartData: Hashable {
     
-    let day: String
-    let amount: Double
-}
-
-struct MonthChartData: Hashable {
-    
-    let day: String
-    let amount: Double
-}
-
-struct YearChartData: Hashable {
-    
-    let month: String
+    let timeInterval: String
     let amount: Double
 }
