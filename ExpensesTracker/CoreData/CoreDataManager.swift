@@ -40,8 +40,24 @@ class CoreDataManager {
         do {
             try persistentContainer.viewContext.save()
         } catch {
-            print(error)
+            persistentContainer.viewContext.rollback()
         }
+    }
+    
+    /// Getting entry by ID
+    func getById(_ id: NSManagedObjectID) -> Entry? {
+        do {
+            return try persistentContainer.viewContext.existingObject(with: id) as? Entry
+        } catch {
+            print("Can't get entry by ID \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    /// Delete
+    func delete(_ entry: Entry) {
+        persistentContainer.viewContext.delete(entry)
+        save()
     }
     
     /// Getting all entries from CoreData

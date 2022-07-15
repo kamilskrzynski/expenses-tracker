@@ -52,9 +52,6 @@ struct InsightsView: View {
                     }
                 }
             }
-            .onAppear {
-                vm.refreshView()
-            }
         }
     }
     

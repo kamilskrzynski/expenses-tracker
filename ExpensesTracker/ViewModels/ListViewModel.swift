@@ -38,6 +38,13 @@ typealias EntryGroup = OrderedDictionary<Date, [EntryViewModel]>
 
 final class ListViewModel: ObservableObject {
     
+    
+    @Published var groupedEntries = EntryGroup()
+    
+    init() {
+        groupedEntries = groupEntryByDay()
+    }
+    
     // MARK: Functions
     // MARK: getDay()
     /// Getting String representation of day
@@ -65,6 +72,14 @@ final class ListViewModel: ObservableObject {
         let last = getLastAmountFor(timePeriod, entryType)
         let percentage = 100 - (current * 100.0 / last)
         return Int(abs(round(percentage)))
+    }
+    
+    // MARK: delete()
+    func delete(_ entry: EntryViewModel) {
+        let entry = CoreDataManager.shared.getById(entry.id)
+        if let entry = entry {
+            CoreDataManager.shared.delete(entry)
+        }
     }
     
     // MARK: groupEntriesFor()
@@ -250,7 +265,7 @@ final class ListViewModel: ObservableObject {
 
 // MARK: EntryViewModel
 /// Used to create visual representation of CoreData Entity
-struct EntryViewModel {
+struct EntryViewModel: Equatable {
     
     let entry: Entry
     

@@ -36,9 +36,7 @@ struct ListView: View {
                     toolbarTrailing
                 }
             }
-            .fullScreenCover(isPresented: $isSheetShowed, onDismiss: {
-                vm.refreshView()
-            }, content: {
+            .fullScreenCover(isPresented: $isSheetShowed, content: {
                 AddExpenseView()
             })
         }
@@ -68,10 +66,40 @@ struct ListView: View {
     
     // MARK: entriesList
     var entriesList: some View {
-        ForEach(Array(vm.groupEntryByDay()), id: \.key) { day, entries in
+        ForEach(Array(vm.groupedEntries), id: \.key) { day, entries in
             Section {
                 ForEach(entries, id: \.id) { entry in
                     EntriesListRowView(entry: entry)
+                        .contextMenu {
+                            Button {
+                                print("edit")
+                            } label: {
+                                Label {
+                                    Text("Edit")
+                                } icon: {
+                                    Image(systemName: "square.and.pencil")
+                                }
+                            }
+                            Button {
+                                print("duplicate")
+                            } label: {
+                                Label {
+                                    Text("Duplicate")
+                                } icon: {
+                                    Image(systemName: "square.on.square")
+                                }
+                            }
+                            Button(role: .destructive) {
+                                    vm.delete(entry)
+                                    vm.groupedEntries = vm.groupEntryByDay()
+                            } label: {
+                                Label {
+                                    Text("Delete")
+                                } icon: {
+                                    Image(systemName: "trash")
+                                }
+                            }
+                        }
                 }
                 .listRowBackground(Color.clear)
             } header: {
